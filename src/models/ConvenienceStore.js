@@ -1,5 +1,6 @@
 import DocsLoader from './DocsLoader.js';
 import { DOCS_CONFIG } from '../constants/docsConfig.js';
+import Parser from './Parser.js';
 
 class ConvenienceStore {
   #productMap
@@ -11,10 +12,11 @@ class ConvenienceStore {
   }
 
   async #loadData(){
-    const promotions = await this.#loadPromotions()
-    const products = await this.#loadProducts()
-
-    // 파싱해서 저장하기
+    const parser = new Parser();
+    this.#promotionMap =  parser.parsePromotionsData(await this.#loadPromotions())
+    const { productMap, productStockMap } = parser.parseProductData(await this.#loadProducts());
+    this.#productMap = productMap;
+    this.#productStockMap = productStockMap;
   }
   async #loadPromotions() {
     return await DocsLoader.loadDocs(DOCS_CONFIG.PROMOTIONS_FILE_PATH)
