@@ -1,4 +1,5 @@
 import { DOCS_CONFIG } from '../src/constants/docsConfig.js';
+import DocsLoader from '../src/models/DocsLoader.js';
 
 describe('DocsLoader 테스트', () => {
 
