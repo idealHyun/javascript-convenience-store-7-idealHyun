@@ -1,13 +1,15 @@
 class ConvenienceStoreController {
+  #convenienceStore
   #inputView
   #outputView
 
-  constructor(inputView,outputView) {
+  constructor(convenienceStore,inputView,outputView) {
+    this.#convenienceStore = convenienceStore;
     this.#inputView = inputView;
     this.#outputView = outputView;
   }
 
-  run(){
+  async run(){
     this.#outputView.printWelcomeMessage()
   }
 }
