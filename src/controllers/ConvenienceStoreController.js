@@ -11,7 +11,14 @@ class ConvenienceStoreController {
 
   async run(){
     this.#outputView.printWelcomeMessage()
-    await this.#convenienceStore.loadInitData();
+    const productList = await this.#convenienceStore.loadInitData();
+    this.#printConvenienceStoreStorage(productList);
+    
+  }
+  
+  #printConvenienceStoreStorage(productList){
+    // productList 로 Store 에서 매핑하기
+
   }
 }
 

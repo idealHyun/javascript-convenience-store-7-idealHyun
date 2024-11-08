@@ -8,16 +8,15 @@ class ConvenienceStore {
   #productStockMap
 
   async loadInitData(){
-    await this.#loadData();
-  }
-
-  async #loadData(){
     const parser = new Parser();
     this.#promotionMap =  parser.parsePromotionsData(await this.#loadPromotions())
     const { productMap, productStockMap } = parser.parseProductData(await this.#loadProducts());
     this.#productMap = productMap;
     this.#productStockMap = productStockMap;
+
+    return Array.from(this.#productMap.keys())
   }
+
   async #loadPromotions() {
     return await DocsLoader.loadDocs(DOCS_CONFIG.PROMOTIONS_FILE_PATH)
   }
