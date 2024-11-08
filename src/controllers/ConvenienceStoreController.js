@@ -16,7 +16,9 @@ class ConvenienceStoreController {
   }
 
   #printConvenienceStoreStorage(productList) {
-    // productList 로 Store 에서 매핑하기
+    productList.forEach((product) => {
+      this.#convenienceStore.getProductInfo(product);
+    })
   }
 }
 

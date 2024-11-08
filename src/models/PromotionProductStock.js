@@ -10,6 +10,10 @@ class PromotionProductStock extends ProductStock {
     this.#promotionName = promotionName;
   }
 
+  getPromotionName(){
+    return this.#promotionName;
+  }
+
   #validatePromotionName(promotionName) {
     this.#checkNullAndUndefined(promotionName);
   }

@@ -21,6 +21,38 @@ class ConvenienceStore {
     return Array.from(this.#productMap.keys());
   }
 
+  getProductInfo(productName){
+    const price = this.#productMap.get(productName).getPrice();
+    const generalProductStock = this.#productStockMap.get(productName);
+
+    const productQuantity = this.#getProductQuantity(generalProductStock.noPromotion);
+    const promotionProductQuantity = this.#getPromotionProductQuantity(generalProductStock.promotion);
+    const promotionName = this.#getPromotionName(generalProductStock.promotion);
+
+    return { productName, price, productQuantity, promotionProductQuantity, promotionName };
+  }
+
+  #getPromotionProductQuantity(promotionProductStock){
+    if (promotionProductStock === null){
+      return null;
+    }
+    return promotionProductStock.getQuantity();
+  }
+
+  #getPromotionName(promotionProductStock){
+    if (promotionProductStock === null){
+      return null;
+    }
+    return promotionProductStock.getPromotionName();
+  }
+
+  #getProductQuantity(productStock){
+    if (productStock === null){
+      return null;
+    }
+    return productStock.getQuantity();
+  }
+
   async #loadPromotions() {
     return await DocsLoader.loadDocs(DOCS_CONFIG.PROMOTIONS_FILE_PATH);
   }

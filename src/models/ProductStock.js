@@ -12,6 +12,10 @@ class ProductStock {
     this.#quantity = quantity;
   }
 
+  getQuantity() {
+    return this.#quantity;
+  }
+
   #validateProduct(product) {
     this.#checkNullAndUndefined(product);
   }
