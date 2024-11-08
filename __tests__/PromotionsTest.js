@@ -1,3 +1,5 @@
+import Promotion from '../src/models/Promotion.js';
+
 describe('Promotion 테스트', () => {
 
   test('프로모션 생성자 테스트', () => {
