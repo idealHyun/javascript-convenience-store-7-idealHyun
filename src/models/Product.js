@@ -16,22 +16,22 @@ class Product {
     return this.#name;
   }
 
-  getPrice(){
+  getPrice() {
     return this.#price;
   }
 
-  #validateName(name){
+  #validateName(name) {
     this.#checkNullAndUndefined(name);
     this.#checkString(name);
   }
 
-  #validatePrice(price){
+  #validatePrice(price) {
     this.#checkNullAndUndefined(price);
     this.#checkTypeNumber(price);
 
     const numberPrice = Number(price);
-    this.#checkTypeInteger(numberPrice)
-    this.#checkPriceRange(numberPrice)
+    this.#checkTypeInteger(numberPrice);
+    this.#checkPriceRange(numberPrice);
   }
 
   #checkNullAndUndefined(value) {
@@ -40,14 +40,14 @@ class Product {
     }
   }
 
-  #checkString(value){
+  #checkString(value) {
     if (typeof value !== 'string' || value.trim() === '') {
       throw new Error(ERROR_MESSAGE.VALIDATION.INVALID_STRING);
     }
   }
 
-  #checkTypeNumber(value){
-    if(isNaN(Number(value))){
+  #checkTypeNumber(value) {
+    if (isNaN(Number(value))) {
       throw new Error(ERROR_MESSAGE.VALIDATION.INVALID_NUMBER);
     }
   }
@@ -58,8 +58,8 @@ class Product {
     }
   }
 
-  #checkPriceRange(value){
-    if (Number(value)<STORE_CONFIG.MINIMUM_PRICE){
+  #checkPriceRange(value) {
+    if (Number(value) < STORE_CONFIG.MINIMUM_PRICE) {
       throw new Error(ERROR_MESSAGE.VALIDATION.MINIMUM_PRICE);
     }
   }

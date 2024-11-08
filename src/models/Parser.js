@@ -21,7 +21,7 @@ class Parser {
     const productMap = new Map();
     const productStockMap = new Map();
 
-    dataLines.forEach(line => {
+    dataLines.forEach((line) => {
       this.#processDataLine(line, headers, productMap, productStockMap);
     });
     return { productMap, productStockMap };
@@ -43,10 +43,17 @@ class Parser {
   }
 
   #addProductStockToMap(productStockMap, { name, quantity, promotion }) {
-    const stockEntry = productStockMap.get(name) || { promotion: null, noPromotion: null };
+    const stockEntry = productStockMap.get(name) || {
+      promotion: null,
+      noPromotion: null,
+    };
 
     if (promotion && promotion.toLowerCase() !== 'null') {
-      stockEntry.promotion = new PromotionProductStock(name, quantity, promotion);
+      stockEntry.promotion = new PromotionProductStock(
+        name,
+        quantity,
+        promotion,
+      );
     } else {
       stockEntry.noPromotion = new ProductStock(name, quantity);
     }
@@ -84,7 +91,10 @@ class Parser {
   }
 
   #splitAndTrim(string, delimiter) {
-    return string.trim().split(delimiter).map(item => item.trim());
+    return string
+      .trim()
+      .split(delimiter)
+      .map((item) => item.trim());
   }
 }
 

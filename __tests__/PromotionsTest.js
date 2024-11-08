@@ -1,7 +1,6 @@
 import Promotion from '../src/models/Promotion.js';
 
 describe('Promotion 테스트', () => {
-
   test('프로모션 생성자 테스트', () => {
     const promotionInfo = {
       name: '탄산2+1',
@@ -11,7 +10,7 @@ describe('Promotion 테스트', () => {
       endDate: '2024-12-31',
     };
 
-    expect(()=>{
+    expect(() => {
       new Promotion(promotionInfo);
     }).not.toThrow();
   });
@@ -26,7 +25,7 @@ describe('Promotion 테스트', () => {
           get: '1',
           startDate: '2024-01-01',
           endDate: '2024-12-31',
-        }
+        },
       },
       {
         description: 'buy 값이 null',
@@ -36,7 +35,7 @@ describe('Promotion 테스트', () => {
           get: '1',
           startDate: '2024-01-01',
           endDate: '2024-12-31',
-        }
+        },
       },
       {
         description: 'get 값이 null',
@@ -46,7 +45,7 @@ describe('Promotion 테스트', () => {
           get: null,
           startDate: '2024-01-01',
           endDate: '2024-12-31',
-        }
+        },
       },
       {
         description: 'startDate 값이 null',
@@ -56,7 +55,7 @@ describe('Promotion 테스트', () => {
           get: '1',
           startDate: null,
           endDate: '2024-12-31',
-        }
+        },
       },
       {
         description: 'endDate 값이 null',
@@ -66,7 +65,7 @@ describe('Promotion 테스트', () => {
           get: '1',
           startDate: '2024-01-01',
           endDate: null,
-        }
+        },
       },
     ])('$description', ({ promotionInfo }) => {
       expect(() => {
@@ -74,5 +73,4 @@ describe('Promotion 테스트', () => {
       }).toThrow('[ERROR]');
     });
   });
-
 });

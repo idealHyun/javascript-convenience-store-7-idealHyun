@@ -10,10 +10,8 @@ describe('Product 테스트', () => {
     const product = new Product(name, price);
 
     // then
-    expect(product.getName())
-      .toBe('젤리');
-    expect(product.getPrice())
-      .toBe(1500);
+    expect(product.getName()).toBe('젤리');
+    expect(product.getPrice()).toBe(1500);
   });
 
   test('Product 이름 없는 예외 테스트', () => {
@@ -22,8 +20,7 @@ describe('Product 테스트', () => {
 
     expect(() => {
       new Product(name, price);
-    })
-      .toThrow('[ERROR]');
+    }).toThrow('[ERROR]');
   });
 
   test('Product 가격 없는 예외 테스트', () => {
@@ -32,7 +29,6 @@ describe('Product 테스트', () => {
 
     expect(() => {
       new Product(name, price);
-    })
-      .toThrow('[ERROR]');
+    }).toThrow('[ERROR]');
   });
 });

@@ -8,7 +8,11 @@ class App {
     const convenienceStore = new ConvenienceStore();
     const inputView = new InputView();
     const outputView = new OutputView();
-    const convenienceStoreController = new ConvenienceStoreController(convenienceStore,inputView,outputView);
+    const convenienceStoreController = new ConvenienceStoreController(
+      convenienceStore,
+      inputView,
+      outputView,
+    );
     await convenienceStoreController.run();
   }
 }

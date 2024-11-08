@@ -109,5 +109,4 @@ class Promotion {
   }
 }
 
-
 export default Promotion;

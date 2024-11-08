@@ -1,16 +1,16 @@
 import ProductStock from './ProductStock.js';
 import { ERROR_MESSAGE } from '../constants/message.js';
 
-class PromotionProductStock extends ProductStock{
-  #promotionName
+class PromotionProductStock extends ProductStock {
+  #promotionName;
 
   constructor(productName, quantity, promotionName) {
     super(productName, quantity);
-    this.#validatePromotionName(promotionName)
-    this.#promotionName = promotionName
+    this.#validatePromotionName(promotionName);
+    this.#promotionName = promotionName;
   }
 
-  #validatePromotionName(promotionName){
+  #validatePromotionName(promotionName) {
     this.#checkNullAndUndefined(promotionName);
   }
 

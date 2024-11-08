@@ -3,9 +3,8 @@ import { SYSTEM_MESSAGE } from '../constants/message.js';
 
 class OutputView {
   printWelcomeMessage() {
-    Console.print(SYSTEM_MESSAGE.OUTPUT.WELCOME)
+    Console.print(SYSTEM_MESSAGE.OUTPUT.WELCOME);
   }
 }
-
 
 export default OutputView;

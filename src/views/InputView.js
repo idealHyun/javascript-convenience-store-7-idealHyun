@@ -1,5 +1,3 @@
-class InputView {
-
-}
+class InputView {}
 
 export default InputView;

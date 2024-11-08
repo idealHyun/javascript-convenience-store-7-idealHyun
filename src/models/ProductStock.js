@@ -2,21 +2,21 @@ import { ERROR_MESSAGE } from '../constants/message.js';
 import { STORE_CONFIG } from '../constants/storeConfig.js';
 
 class ProductStock {
-  #productName
-  #quantity
+  #productName;
+  #quantity;
 
   constructor(productName, quantity) {
     this.#validateProduct(productName);
-    this.#validateQuantity(quantity)
-    this.#productName = productName
-    this.#quantity = quantity
+    this.#validateQuantity(quantity);
+    this.#productName = productName;
+    this.#quantity = quantity;
   }
 
-  #validateProduct(product){
+  #validateProduct(product) {
     this.#checkNullAndUndefined(product);
   }
 
-  #validateQuantity(quantity){
+  #validateQuantity(quantity) {
     this.#checkNullAndUndefined(quantity);
     this.#checkTypeNumber(quantity);
 
@@ -36,9 +36,9 @@ class ProductStock {
     }
   }
 
-  #checkQuantityRange(value){
+  #checkQuantityRange(value) {
     if (value < STORE_CONFIG.MINIMUM_PRODUCT_QUANTITY) {
-      throw new Error(ERROR_MESSAGE.VALIDATION.INVALID_QUANTITY)
+      throw new Error(ERROR_MESSAGE.VALIDATION.INVALID_QUANTITY);
     }
   }
 }

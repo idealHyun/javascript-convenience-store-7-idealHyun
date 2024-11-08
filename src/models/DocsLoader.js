@@ -3,10 +3,10 @@ import { ERROR_MESSAGE } from '../constants/message.js';
 
 class DocsLoader {
   static async loadDocs(path) {
-    try{
+    try {
       return await fs.readFile(path, 'utf8');
-    } catch{
-      throw new Error(ERROR_MESSAGE.FILE.INVALID_LOAD)
+    } catch {
+      throw new Error(ERROR_MESSAGE.FILE.INVALID_LOAD);
     }
   }
 }
