@@ -1,6 +1,7 @@
 import DocsLoader from './DocsLoader.js';
 import { DOCS_CONFIG } from '../constants/docsConfig.js';
 import Parser from './Parser.js';
+import { DateTimes } from '@woowacourse/mission-utils';
 
 class ConvenienceStore {
   #productMap;
@@ -33,7 +34,7 @@ class ConvenienceStore {
   }
 
   #getPromotionProductQuantity(promotionProductStock){
-    if (promotionProductStock === null){
+    if (promotionProductStock === null || !this.#checkPromotionPeriod(promotionProductStock.getPromotionName(),DateTimes.now())){
       return null;
     }
     return promotionProductStock.getQuantity();
@@ -51,6 +52,10 @@ class ConvenienceStore {
       return null;
     }
     return productStock.getQuantity();
+  }
+
+  #checkPromotionPeriod(promotionName,today){
+    return this.#promotionMap.get(promotionName).isOngoingPromotion(today);
   }
 
   async #loadPromotions() {

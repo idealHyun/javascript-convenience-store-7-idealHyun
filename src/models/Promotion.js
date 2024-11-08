@@ -17,6 +17,10 @@ class Promotion {
     this.#endDate = endDate;
   }
 
+  isOngoingPromotion(dayTime){
+    return dayTime >= new Date(this.#startDate) && dayTime <= new Date(this.#endDate);
+  }
+
   #validateFields(name, buy, get, startDate, endDate) {
     this.#validateName(name);
     this.#validateBuy(buy);
