@@ -8,13 +8,13 @@ class Promotion {
   #startDate;
   #endDate;
 
-  constructor({ name, buy, get, start_date : startDate, end_date : endDate }) {
+  constructor({ name, buy, get, startDate, endDate }) {
     this.#validateFields({ name, buy, get, startDate, endDate });
     this.#name = name;
     this.#buy = Number(buy);
     this.#get = Number(get);
-    this.#startDate = new Date(startDate);
-    this.#endDate = new Date(endDate);
+    this.#startDate = startDate;
+    this.#endDate = endDate;
   }
 
   #validateFields({ name, buy, get, startDate, endDate }) {
