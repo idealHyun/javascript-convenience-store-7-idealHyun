@@ -1,3 +1,5 @@
+import ProductInfoDTO from '../dtos/ProductInfoDTO.js';
+
 class ConvenienceStoreController {
   #convenienceStore;
   #inputView;
@@ -17,7 +19,8 @@ class ConvenienceStoreController {
 
   #printConvenienceStoreStorage(productList) {
     productList.forEach((product) => {
-      this.#convenienceStore.getProductInfo(product);
+      const productInfoDTO = ProductInfoDTO.of(this.#convenienceStore.getProductInfo(product));
+      this.#outputView.printProductInfo(productInfoDTO);
     })
   }
 }
