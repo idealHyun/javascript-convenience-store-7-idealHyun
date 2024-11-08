@@ -11,6 +11,7 @@ class ConvenienceStoreController {
 
   async run(){
     this.#outputView.printWelcomeMessage()
+    await this.#convenienceStore.loadInitData();
   }
 }
 
