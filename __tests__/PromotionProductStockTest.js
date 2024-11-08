@@ -1,3 +1,5 @@
+import PromotionProductStock from '../src/models/PromotionProductStock.js';
+
 describe('PromotionProductStock 테스트', ()=>{
   test('생성자 테스트',()=>{
     const productName = '콜라'
