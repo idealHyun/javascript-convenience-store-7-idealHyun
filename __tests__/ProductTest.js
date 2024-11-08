@@ -1,3 +1,5 @@
+import Product from '../src/models/Product.js';
+
 describe('Product 테스트', () => {
   test('Product 생성자 테스트', () => {
     // given

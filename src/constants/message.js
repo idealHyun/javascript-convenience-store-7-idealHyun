@@ -1,3 +1,5 @@
+import { STORE_CONFIG } from './storeConfig.js';
+
 const SYSTEM_MESSAGE = Object.freeze({
   INPUT: {
     INVALID_FORMAT: '[ERROR] 올바르지 않은 형식으로 입력했습니다. 다시 입력해 주세요.',
@@ -25,6 +27,7 @@ const ERROR_MESSAGE={
     INVALID_STRING : '[ERROR] 값의 형태가 문자열이 아닙니다.',
     INVALID_BUY_RANGE : '[ERROR] 값이 최소 구매 개수를 넘겨야합니다.',
     INVALID_GET_RANGE : '[ERROR] 값이 최소 받는 개수를 넘겨야합니다.',
+    INVALID_PRICE : `[ERROR] 금액은 최소 금액인 ${STORE_CONFIG.MINIMUM_PRICE} 이상 이어야합니다.`,
   }
 }
 
