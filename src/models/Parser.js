@@ -1,18 +1,24 @@
 import ProductStock from './ProductStock.js';
 import PromotionProductStock from './PromotionProductStock.js';
 import Product from './Product.js';
+import Promotion from './Promotion.js';
 
 class Parser {
   parsePromotionsData(fileData) {
     const { headers, dataLines } = this.#extractHeadersAndDataLines(fileData);
+    const promotionMap = new Map();
 
-    return dataLines.reduce((promotions, line) => {
+    dataLines.forEach(line => {
       const values = this.#splitAndTrim(line, ',');
-      const promotion = this.#createPromotionObject(headers, values);
+      const { name, ...otherData } = this.#mapValuesToObject(headers, values);
+      promotionMap.set(name, this.#createPromotion(name, otherData));
+    });
 
-      promotions[promotion.name] = promotion;
-      return promotions;
-    }, {});
+    return promotionMap;
+  }
+
+  #createPromotion(name, { buy, get, startDate, endDate }) {
+    return new Promotion(name, buy, get, startDate, endDate);
   }
 
   parseProductData(fileData) {
@@ -72,22 +78,6 @@ class Parser {
       obj[header] = values[index] === 'null' ? null : values[index];
       return obj;
     }, {});
-  }
-
-  #createPromotionObject(headers, values) {
-    return headers.reduce((promotion, header, index) => {
-      const key = header;
-      const value = this.#parseValue(key, values[index]);
-      promotion[key] = value;
-      return promotion;
-    }, {});
-  }
-
-  #parseValue(key, value) {
-    if (key === 'buy' || key === 'get') {
-      return parseInt(value, 10);
-    }
-    return value;
   }
 
   #splitAndTrim(string, delimiter) {
