@@ -7,8 +7,8 @@ describe('Promotion 테스트', () => {
       name: '탄산2+1',
       buy: '2',
       get: '1',
-      start_date: '2024-01-01',
-      end_date: '2024-12-31',
+      startDate: '2024-01-01',
+      endDate: '2024-12-31',
     };
 
     expect(()=>{
@@ -24,8 +24,8 @@ describe('Promotion 테스트', () => {
           name: null,
           buy: '2',
           get: '1',
-          start_date: '2024-01-01',
-          end_date: '2024-12-31',
+          startDate: '2024-01-01',
+          endDate: '2024-12-31',
         }
       },
       {
@@ -34,8 +34,8 @@ describe('Promotion 테스트', () => {
           name: '탄산2+1',
           buy: null,
           get: '1',
-          start_date: '2024-01-01',
-          end_date: '2024-12-31',
+          startDate: '2024-01-01',
+          endDate: '2024-12-31',
         }
       },
       {
@@ -44,28 +44,28 @@ describe('Promotion 테스트', () => {
           name: '탄산2+1',
           buy: '2',
           get: null,
-          start_date: '2024-01-01',
-          end_date: '2024-12-31',
+          startDate: '2024-01-01',
+          endDate: '2024-12-31',
         }
       },
       {
-        description: 'start_date 값이 null',
+        description: 'startDate 값이 null',
         promotionInfo: {
           name: '탄산2+1',
           buy: '2',
           get: '1',
-          start_date: null,
-          end_date: '2024-12-31',
+          startDate: null,
+          endDate: '2024-12-31',
         }
       },
       {
-        description: 'end_date 값이 null',
+        description: 'endDate 값이 null',
         promotionInfo: {
           name: '탄산2+1',
           buy: '2',
           get: '1',
-          start_date: '2024-01-01',
-          end_date: null,
+          startDate: '2024-01-01',
+          endDate: null,
         }
       },
     ])('$description', ({ promotionInfo }) => {
