@@ -28,6 +28,7 @@ const ERROR_MESSAGE={
     INVALID_BUY_RANGE : '[ERROR] 값이 최소 구매 개수를 넘겨야합니다.',
     INVALID_GET_RANGE : '[ERROR] 값이 최소 받는 개수를 넘겨야합니다.',
     INVALID_PRICE : `[ERROR] 금액은 최소 금액인 ${STORE_CONFIG.MINIMUM_PRICE} 이상 이어야합니다.`,
+    INVALID_QUANTITY : `[ERROR] 물건의 수량은 ${STORE_CONFIG.MINIMUM_PRODUCT_QUANTITY} 이상 이어야합니다.`
   }
 }
 

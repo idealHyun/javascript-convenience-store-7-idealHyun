@@ -1,3 +1,5 @@
+import ProductStock from '../src/models/ProductStock.js';
+
 describe('ProductStock 테스트', ()=>{
   test('생성자 테스트',()=>{
     const productName = '콜라'
