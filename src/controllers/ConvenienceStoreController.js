@@ -12,10 +12,13 @@ class ConvenienceStoreController {
   }
 
   async run() {
-    this.#outputView.printWelcomeMessage();
     const productList = await this.#convenienceStore.loadInitData();
+
+    this.#outputView.printWelcomeMessage();
     this.#printConvenienceStoreStorage(productList);
-    await this.#inputView.getInputProductAndQuantity();
+
+    const productAndQuantityInput = await this.#inputView.getInputProductAndQuantity();
+    this.#convenienceStore.sell(productAndQuantityInput);
   }
 
   #printConvenienceStoreStorage(productList) {

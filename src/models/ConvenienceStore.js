@@ -2,6 +2,9 @@ import DocsLoader from './DocsLoader.js';
 import { DOCS_CONFIG } from '../constants/docsConfig.js';
 import Parser from './Parser.js';
 import { DateTimes } from '@woowacourse/mission-utils';
+import ProductStock from './ProductStock.js';
+import { ERROR_MESSAGE } from '../constants/message.js';
+import { STORE_CONFIG } from '../constants/storeConfig.js';
 
 class ConvenienceStore {
   #productMap;
@@ -19,18 +22,74 @@ class ConvenienceStore {
     this.#productMap = productMap;
     this.#productStockMap = productStockMap;
 
-    return Array.from(this.#productMap.keys());
+    return this.#getProductList();
   }
 
   getProductInfo(productName){
     const price = this.#productMap.get(productName).getPrice();
-    const generalProductStock = this.#productStockMap.get(productName);
+    const totalProductStock = this.#productStockMap.get(productName);
 
-    const productQuantity = this.#getProductQuantity(generalProductStock.noPromotion);
-    const promotionProductQuantity = this.#getPromotionProductQuantity(generalProductStock.promotion);
-    const promotionName = this.#getPromotionName(generalProductStock.promotion);
+    const productQuantity = this.#getProductQuantity(totalProductStock.noPromotion);
+    const promotionProductQuantity = this.#getPromotionProductQuantity(totalProductStock.promotion);
+    const promotionName = this.#getPromotionName(totalProductStock.promotion);
 
     return { productName, price, productQuantity, promotionProductQuantity, promotionName };
+  }
+
+  sell(InputString){
+    const productStocksToSell = InputString.split(',').map(item => {
+      const [productName, quantityString] = item.replace(/[\[\]]/g, '').split('-');
+      this.#validateProductName(productName);
+      this.#validateQuantity(productName,quantityString);
+
+      return new ProductStock(productName,Number(quantityString));
+    });
+  }
+
+  #validateProductName(productName){
+    this.#checkProductName(this.#getProductList(),productName)
+  }
+
+  #validateQuantity(productName,quantityString){
+    this.#checkTypeNumber(quantityString)
+    this.#checkQuantityRange(Number(quantityString))
+    this.#checkOverQuantity(this.#getTotalQuantity(productName),Number(quantityString))
+  }
+
+  #checkProductName(productList,value){
+    if(!productList.includes(value)){
+      throw new Error(ERROR_MESSAGE.INPUT.INVALID_PRODUCT);
+    }
+  }
+
+  #checkTypeNumber(value) {
+    if (isNaN(Number(value))) {
+      throw new Error(ERROR_MESSAGE.VALIDATION.INVALID_NUMBER);
+    }
+  }
+
+  #checkQuantityRange(value) {
+    if (value < STORE_CONFIG.MINIMUM_PRODUCT_QUANTITY) {
+      throw new Error(ERROR_MESSAGE.VALIDATION.INVALID_QUANTITY);
+    }
+  }
+
+  #checkOverQuantity(totalQuantity, value){
+    if(value > totalQuantity){
+      throw new Error(ERROR_MESSAGE.INPUT.INVALID_QUANTITY);
+    }
+  }
+
+  #getTotalQuantity(productName){
+    const totalProductStock = this.#productStockMap.get(productName);
+    const productQuantity = this.#getProductQuantity(totalProductStock.noPromotion);
+    const promotionProductQuantity = this.#getPromotionProductQuantity(totalProductStock.promotion);
+
+    return productQuantity + promotionProductQuantity;
+  }
+
+  #getProductList(){
+    return Array.from(this.#productMap.keys());
   }
 
   #getPromotionProductQuantity(promotionProductStock){

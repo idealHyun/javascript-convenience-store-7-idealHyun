@@ -9,7 +9,7 @@ class ProductStock {
     this.#validateProduct(productName);
     this.#validateQuantity(quantity);
     this.#productName = productName;
-    this.#quantity = quantity;
+    this.#quantity = Number(quantity);
   }
 
   getQuantity() {
