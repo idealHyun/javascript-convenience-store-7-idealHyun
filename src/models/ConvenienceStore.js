@@ -53,6 +53,10 @@ class ConvenienceStore {
     return false;
   }
 
+  getExceedCount(productStock){
+    return productStock.getQuantity() - this.#productStockMap.get(productStock.getProductName()).promotion.getQuantity()
+  }
+
   getMaxPromotionQuantity(productStock){
     const promotion = this.#getPromotionForProductName(productStock.getProductName())
     if(promotion){

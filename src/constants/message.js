@@ -36,4 +36,7 @@ const ERROR_MESSAGE = Object.freeze({
   },
 });
 
-export { SYSTEM_MESSAGE, ERROR_MESSAGE };
+const EXCEED_QUANTITY_MESSAGE = (productName, quantity) =>
+  `\n현재 ${productName} ${quantity}개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)`;
+
+export { SYSTEM_MESSAGE, ERROR_MESSAGE,EXCEED_QUANTITY_MESSAGE };

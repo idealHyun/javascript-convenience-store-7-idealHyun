@@ -3,12 +3,32 @@ import { ERROR_MESSAGE, SYSTEM_MESSAGE } from '../constants/message.js';
 
 class InputView {
   #FORMAT_REGEX = /^(\[[a-zA-Z가-힣]+-\d+\])(,(\[[a-zA-Z가-힣]+-\d+\]))*$/
+  #YES = 'Y'
+  #NO = 'N'
 
   async getInputProductAndQuantity(){
     const productAndQuantityInput =  await Console.readLineAsync(SYSTEM_MESSAGE.INPUT.REQUEST_PRODUCT_AND_QUANTITY);
     this.#validateProductAndQuantity(productAndQuantityInput);
 
     return productAndQuantityInput
+  }
+
+  async getInputYesOrNo(){
+    const answer = await Console.readLineAsync('');
+    this.#validateAnswer(answer);
+
+    return answer === this.#YES;
+  }
+
+  #validateAnswer(value){
+    this.#checkBlank(value);
+    this.#checkYOrN(value);
+  }
+
+  #checkYOrN(value){
+    if(value !== this.#YES && value !== this.#NO){
+     throw new Error(ERROR_MESSAGE.INPUT.INVALID_INPUT)
+    }
   }
 
   #validateProductAndQuantity(value){
