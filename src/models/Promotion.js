@@ -21,6 +21,13 @@ class Promotion {
     return dayTime >= new Date(this.#startDate) && dayTime <= new Date(this.#endDate);
   }
 
+  calculateBonusQuantity(purchaseQuantity){
+    if(purchaseQuantity % (this.#buy + this.#get) >= this.#buy){
+      return this.#get;
+    }
+    return 0;
+  }
+
   #validateFields(name, buy, get, startDate, endDate) {
     this.#validateName(name);
     this.#validateBuy(buy);

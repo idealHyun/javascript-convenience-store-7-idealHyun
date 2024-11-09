@@ -44,6 +44,25 @@ class ConvenienceStore {
 
       return new ProductStock(productName,Number(quantityString));
     });
+
+    // TODO: 프로모션 재고 먼저 차감하기
+    productStocksToSell.forEach((productStock) => {
+      // productStock 에서 물건 이름 꺼내서
+      const productName = productStock.getProductName();
+
+      // Map 에서 promotion 정보에서 buy,get 꺼내서 현재 물건 개수로 프로모션 잘 이루어지는지 확인
+      const promotion = this.#promotionMap.get(productName);
+      promotion.calculateBonusQuantity(productStock.getQuantity());
+
+      // 확인결과, 해당 수량만큼 안가져오면 메세지 띄우기
+
+      // 프로모션 재고가 수량 넘긴 경우 일부 수량 정가 결제 메세지 띄우기
+      // 정가 결제 안할시 그만큼 수량 빼기
+
+      // 멤버십 할인 적용 여부 띄우기
+
+      // 총 판매 정보 리턴하기
+    })
   }
 
   #validateProductName(productName){
