@@ -1,18 +1,24 @@
 class Receipt {
-  #purchasedProducts
+  #appliedPromotionProducts
+  #notAppliedPromotionProducts
   #bonusProducts
 
   constructor() {
-    this.#purchasedProducts = []
+    this.#appliedPromotionProducts = []
+    this.#notAppliedPromotionProducts = []
     this.#bonusProducts = []
   }
 
-  addPurchasedProductStock(purchasedProductStock) {
-
+  addAppliedPromotionProduct(purchasedProductStock) {
+    this.#appliedPromotionProducts.push(purchasedProductStock);
   }
 
-  addBonusProductStock(purchasedProductStock) {
+  addNotAppliedPromotionProduct(purchasedProductStock) {
+    this.#notAppliedPromotionProducts.push(purchasedProductStock);
+  }
 
+  addBonusProduct(bonusProductStock) {
+    this.#bonusProducts.push(bonusProductStock);
   }
 }
 
