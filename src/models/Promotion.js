@@ -21,11 +21,13 @@ class Promotion {
     return dayTime >= new Date(this.#startDate) && dayTime <= new Date(this.#endDate);
   }
 
-  calculateBonusQuantity(purchaseQuantity){
-    if(purchaseQuantity % (this.#buy + this.#get) >= this.#buy){
-      return this.#get;
+  calculateMaxPromotionQuantity(purchaseQuantity){
+    const promotionSetProductCount = this.#buy + this.#get;
+    let bundleSize = Math.floor(purchaseQuantity / promotionSetProductCount);
+    if(purchaseQuantity % promotionSetProductCount >= this.#buy){
+      return promotionSetProductCount * (bundleSize + 1)
     }
-    return 0;
+    return promotionSetProductCount * bundleSize;
   }
 
   #validateFields(name, buy, get, startDate, endDate) {
