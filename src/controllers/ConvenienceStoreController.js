@@ -15,6 +15,7 @@ class ConvenienceStoreController {
     this.#outputView.printWelcomeMessage();
     const productList = await this.#convenienceStore.loadInitData();
     this.#printConvenienceStoreStorage(productList);
+    await this.#inputView.getInputProductAndQuantity();
   }
 
   #printConvenienceStoreStorage(productList) {
