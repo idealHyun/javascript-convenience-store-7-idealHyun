@@ -75,7 +75,7 @@ describe('Promotion 테스트', () => {
     });
   });
 
-  describe('추가 증정 테스트',()=>{
+  describe('프로모션 적용 가능한 최대 개수를 계산하는 메소드 기능 테스트',()=>{
     test.each([
       {
         description: 'buy가 3, get이 1일 때 9개 구매(추가 증정 없음)',
@@ -87,7 +87,7 @@ describe('Promotion 테스트', () => {
           endDate: '2024-12-31',
         },
         purchaseQuantity: 9,
-        expectValue: 0
+        expectValue: 8
       },
       {
         description: 'buy가 3, get이 1일 때 10개 구매(추가 증정 없음)',
@@ -99,7 +99,7 @@ describe('Promotion 테스트', () => {
           endDate: '2024-12-31',
         },
         purchaseQuantity: 10,
-        expectValue: 0
+        expectValue: 8
       },
       {
         description: 'buy가 3, get이 1일 때 11개 구매(추가 증정 1개)',
@@ -111,7 +111,7 @@ describe('Promotion 테스트', () => {
           endDate: '2024-12-31',
         },
         purchaseQuantity: 11,
-        expectValue: 1
+        expectValue: 12
       },
       {
         description: 'buy가 4, get이 1일 때 8개 구매(추가 증정 없음)',
@@ -123,7 +123,7 @@ describe('Promotion 테스트', () => {
           endDate: '2024-12-31',
         },
         purchaseQuantity: 8,
-        expectValue: 0
+        expectValue: 5
       },
       {
         description: 'buy가 4, get이 1일 때 9개 구매(추가 증정 1개)',
@@ -135,7 +135,7 @@ describe('Promotion 테스트', () => {
           endDate: '2024-12-31',
         },
         purchaseQuantity: 9,
-        expectValue: 1
+        expectValue: 10
       },
       {
         description: 'buy가 2, get이 1일 때 5개 구매(추가 증정 1개)',
@@ -147,7 +147,7 @@ describe('Promotion 테스트', () => {
           endDate: '2024-12-31',
         },
         purchaseQuantity: 5,
-        expectValue: 1
+        expectValue: 6
       },
       {
         description: 'buy가 3, get이 1일 때 3개 구매(추가 증정 1개)',
@@ -159,7 +159,7 @@ describe('Promotion 테스트', () => {
           endDate: '2024-12-31',
         },
         purchaseQuantity: 3,
-        expectValue: 1
+        expectValue: 4
       },
       {
         description: 'buy가 3, get이 1일 때 2개 구매(추가 증정 없음)',
@@ -183,13 +183,13 @@ describe('Promotion 테스트', () => {
           endDate: '2024-12-31',
         },
         purchaseQuantity: 2,
-        expectValue: 0
+        expectValue: 2
       }
     ])('$description', ({ promotionInfo,purchaseQuantity,expectValue }) => {
       const { name, buy, get, startDate, endDate } = promotionInfo;
       const promotion = new Promotion(name, buy, get, startDate, endDate);
 
-      expect(promotion.calculateBonusQuantity(purchaseQuantity)).toBe(expectValue);
+      expect(promotion.calculateMaxPromotionQuantity(purchaseQuantity)).toBe(expectValue);
     })
 
   })
