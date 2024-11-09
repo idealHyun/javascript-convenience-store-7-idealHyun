@@ -7,7 +7,7 @@ class InputView {
   #NO = 'N'
 
   async getInputProductAndQuantity(){
-    const productAndQuantityInput =  await Console.readLineAsync(SYSTEM_MESSAGE.INPUT.REQUEST_PRODUCT_AND_QUANTITY);
+    const productAndQuantityInput =  await Console.readLineAsync(SYSTEM_MESSAGE.input.requestProductAndQuantity);
     this.#validateProductAndQuantity(productAndQuantityInput);
 
     return productAndQuantityInput
@@ -21,14 +21,14 @@ class InputView {
   }
 
   async getUseMembershipDiscount(){
-    const answer = await Console.readLineAsync(SYSTEM_MESSAGE.INPUT.REQUEST_MEMBERSHIP_DISCOUNT);
+    const answer = await Console.readLineAsync(SYSTEM_MESSAGE.input.requestMembershipDiscount);
     this.#validateAnswer(answer);
 
     return answer === this.#YES;
   }
 
   async getInputRepurchase(){
-    const answer = await Console.readLineAsync(SYSTEM_MESSAGE.INPUT.REQUEST_REPURCHASE);
+    const answer = await Console.readLineAsync(SYSTEM_MESSAGE.input.requestRepurchase);
     this.#validateAnswer(answer);
 
     return answer === this.#YES;
@@ -41,7 +41,7 @@ class InputView {
 
   #checkYOrN(value){
     if(value !== this.#YES && value !== this.#NO){
-     throw new Error(ERROR_MESSAGE.INPUT.INVALID_INPUT)
+     throw new Error(ERROR_MESSAGE.input.invalidInput)
     }
   }
 
@@ -52,13 +52,13 @@ class InputView {
 
   #checkFormat(value){
     if (!this.#FORMAT_REGEX.test(value)) {
-      throw new Error(ERROR_MESSAGE.INPUT.INVALID_FORMAT);
+      throw new Error(ERROR_MESSAGE.input.invalidFormat);
     }
   }
 
   #checkBlank(value){
     if(value.trim() === ''){
-      throw new Error(ERROR_MESSAGE.VALIDATION.BLANK);
+      throw new Error(ERROR_MESSAGE.validation.blank);
     }
   }
 }

@@ -6,7 +6,7 @@ class DocsLoader {
     try {
       return await fs.readFile(path, 'utf8');
     } catch {
-      throw new Error(ERROR_MESSAGE.FILE.INVALID_LOAD);
+      throw new Error(ERROR_MESSAGE.file.invalidLoad);
     }
   }
 }

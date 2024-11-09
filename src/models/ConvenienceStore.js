@@ -84,25 +84,25 @@ class ConvenienceStore {
 
   #checkProductName(productList,value){
     if(!productList.includes(value)){
-      throw new Error(ERROR_MESSAGE.INPUT.INVALID_PRODUCT);
+      throw new Error(ERROR_MESSAGE.input.invalidProduct);
     }
   }
 
   #checkTypeNumber(value) {
     if (isNaN(Number(value))) {
-      throw new Error(ERROR_MESSAGE.VALIDATION.INVALID_NUMBER);
+      throw new Error(ERROR_MESSAGE.validation.invalidNumber);
     }
   }
 
   #checkQuantityRange(value) {
-    if (value < STORE_CONFIG.MINIMUM_PRODUCT_QUANTITY) {
-      throw new Error(ERROR_MESSAGE.VALIDATION.INVALID_QUANTITY);
+    if (value < STORE_CONFIG.minimumProductQuantity) {
+      throw new Error(ERROR_MESSAGE.validation.invalidQuantity);
     }
   }
 
   #checkOverQuantity(totalQuantity, value){
     if(value > totalQuantity){
-      throw new Error(ERROR_MESSAGE.INPUT.INVALID_QUANTITY);
+      throw new Error(ERROR_MESSAGE.input.invalidQuantity);
     }
   }
 
@@ -144,11 +144,11 @@ class ConvenienceStore {
   }
 
   async #loadPromotions() {
-    return await DocsLoader.loadDocs(DOCS_CONFIG.PROMOTIONS_FILE_PATH);
+    return await DocsLoader.loadDocs(DOCS_CONFIG.promotionsFilePath);
   }
 
   async #loadProducts() {
-    return await DocsLoader.loadDocs(DOCS_CONFIG.PRODUCTS_FILE_PATH);
+    return await DocsLoader.loadDocs(DOCS_CONFIG.productsFilePath);
   }
 }
 

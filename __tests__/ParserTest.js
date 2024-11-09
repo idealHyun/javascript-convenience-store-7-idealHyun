@@ -6,7 +6,7 @@ import Promotion from '../src/models/Promotion.js';
 describe('Parser 테스트', () => {
   test('파싱', async () => {
     const promotionData = await DocsLoader.loadDocs(
-      DOCS_CONFIG.PROMOTIONS_FILE_PATH,
+      DOCS_CONFIG.promotionsFilePath,
     );
     const parser = new Parser();
     const parsedData = parser.parsePromotionsData(promotionData);

@@ -36,31 +36,31 @@ class Product {
 
   #checkNullAndUndefined(value) {
     if (value === null || value === undefined) {
-      throw new Error(ERROR_MESSAGE.VALIDATION.NOT_PROVIDED);
+      throw new Error(ERROR_MESSAGE.validation.notProvided);
     }
   }
 
   #checkString(value) {
     if (typeof value !== 'string' || value.trim() === '') {
-      throw new Error(ERROR_MESSAGE.VALIDATION.INVALID_STRING);
+      throw new Error(ERROR_MESSAGE.validation.invalidString);
     }
   }
 
   #checkTypeNumber(value) {
     if (isNaN(Number(value))) {
-      throw new Error(ERROR_MESSAGE.VALIDATION.INVALID_NUMBER);
+      throw new Error(ERROR_MESSAGE.validation.invalidNumber);
     }
   }
 
   #checkTypeInteger(value) {
     if (!Number.isInteger(value)) {
-      throw new Error(ERROR_MESSAGE.VALIDATION.INVALID_INTEGER);
+      throw new Error(ERROR_MESSAGE.validation.invalidInteger);
     }
   }
 
   #checkPriceRange(value) {
-    if (Number(value) < STORE_CONFIG.MINIMUM_PRICE) {
-      throw new Error(ERROR_MESSAGE.VALIDATION.MINIMUM_PRICE);
+    if (Number(value) < STORE_CONFIG.minimumPrice) {
+      throw new Error(ERROR_MESSAGE.validation.MINIMUM_PRICE);
     }
   }
 }

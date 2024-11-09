@@ -34,19 +34,19 @@ class ProductStock {
 
   #checkTypeNumber(value) {
     if (isNaN(Number(value))) {
-      throw new Error(ERROR_MESSAGE.VALIDATION.INVALID_NUMBER);
+      throw new Error(ERROR_MESSAGE.validation.invalidNumber);
     }
   }
 
   #checkNullAndUndefined(value) {
     if (value === null || value === undefined) {
-      throw new Error(ERROR_MESSAGE.VALIDATION.NOT_PROVIDED);
+      throw new Error(ERROR_MESSAGE.validation.notProvided);
     }
   }
 
   #checkQuantityRange(value) {
-    if (value < STORE_CONFIG.MINIMUM_PRODUCT_QUANTITY) {
-      throw new Error(ERROR_MESSAGE.VALIDATION.INVALID_QUANTITY);
+    if (value < STORE_CONFIG.minimumProductQuantity) {
+      throw new Error(ERROR_MESSAGE.validation.invalidQuantity);
     }
   }
 }

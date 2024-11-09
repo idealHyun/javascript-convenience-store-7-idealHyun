@@ -74,50 +74,50 @@ class Promotion {
 
   #checkNullAndUndefined(value) {
     if (value === null || value === undefined) {
-      throw new Error(ERROR_MESSAGE.VALIDATION.NOT_PROVIDED);
+      throw new Error(ERROR_MESSAGE.validation.notProvided);
     }
   }
 
   #checkTypeNumber(value) {
     if (isNaN(Number(value))) {
-      throw new Error(ERROR_MESSAGE.VALIDATION.INVALID_NUMBER);
+      throw new Error(ERROR_MESSAGE.validation.invalidNumber);
     }
   }
 
   #checkTypeInteger(value) {
     if (!Number.isInteger(value)) {
-      throw new Error(ERROR_MESSAGE.VALIDATION.INVALID_INTEGER);
+      throw new Error(ERROR_MESSAGE.validation.invalidInteger);
     }
   }
 
   #checkTypeDate(value) {
     const date = new Date(value);
     if (isNaN(date.getTime())) {
-      throw new Error(ERROR_MESSAGE.VALIDATION.INVALID_DATE);
+      throw new Error(ERROR_MESSAGE.validation.invalidDate);
     }
   }
 
   #checkBuyNumberRange(value) {
-    if (value < STORE_CONFIG.MINIMUM_BUY_QUANTITY) {
-      throw new Error(ERROR_MESSAGE.VALIDATION.INVALID_BUY_RANGE);
+    if (value < STORE_CONFIG.minimumBuyQuantity) {
+      throw new Error(ERROR_MESSAGE.validation.invalidBuyRange);
     }
   }
 
   #checkGetNumberRange(value) {
-    if (value < STORE_CONFIG.MINIMUM_GET_QUANTITY) {
-      throw new Error(ERROR_MESSAGE.VALIDATION.INVALID_GET_RANGE);
+    if (value < STORE_CONFIG.getQuantity) {
+      throw new Error(ERROR_MESSAGE.validation.invalidGetRange);
     }
   }
 
   #checkString(value) {
     if (typeof value !== 'string' || value.trim() === '') {
-      throw new Error(ERROR_MESSAGE.VALIDATION.INVALID_STRING);
+      throw new Error(ERROR_MESSAGE.validation.invalidString);
     }
   }
 
   #checkPeriod(startDate, endDate) {
     if (endDate < startDate) {
-      throw new Error(ERROR_MESSAGE.VALIDATION.INVALID_PERIOD);
+      throw new Error(ERROR_MESSAGE.validation.invalidPeriod);
     }
   }
 }

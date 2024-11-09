@@ -1,8 +1,9 @@
-const STORE_CONFIG = {
-  MINIMUM_BUY_QUANTITY: 1,
-  MINIMUM_GET_QUANTITY: 1,
-  MINIMUM_PRICE: 1,
-  MINIMUM_PRODUCT_QUANTITY: 1,
-};
+const STORE_CONFIG = Object.freeze({
+    minimumBuyQuantity: 1,
+    getQuantity: 1,
+    minimumPrice: 1,
+    minimumProductQuantity: 1,
+  }
+);
 
 export { STORE_CONFIG };

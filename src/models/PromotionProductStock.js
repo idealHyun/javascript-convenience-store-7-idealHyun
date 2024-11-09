@@ -20,7 +20,7 @@ class PromotionProductStock extends ProductStock {
 
   #checkNullAndUndefined(value) {
     if (value === null || value === undefined) {
-      throw new Error(ERROR_MESSAGE.VALIDATION.NOT_PROVIDED);
+      throw new Error(ERROR_MESSAGE.validation.notProvided);
     }
   }
 }

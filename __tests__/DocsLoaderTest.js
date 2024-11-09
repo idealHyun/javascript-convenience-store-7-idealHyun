@@ -4,13 +4,13 @@ import DocsLoader from '../src/models/DocsLoader.js';
 describe('DocsLoader 테스트', () => {
   test('promotions 테스트', async () => {
     await expect(
-      DocsLoader.loadDocs(`${DOCS_CONFIG.PROMOTIONS_FILE_PATH}`),
+      DocsLoader.loadDocs(`${DOCS_CONFIG.promotionsFilePath}`),
     ).resolves.not.toThrow();
   });
 
   test('products 테스트', async () => {
     await expect(
-      DocsLoader.loadDocs(`${DOCS_CONFIG.PRODUCTS_FILE_PATH}`),
+      DocsLoader.loadDocs(`${DOCS_CONFIG.productsFilePath}`),
     ).resolves.not.toThrow();
   });
 
