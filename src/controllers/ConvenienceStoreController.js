@@ -18,7 +18,11 @@ class ConvenienceStoreController {
     this.#printConvenienceStoreStorage(productList);
 
     const productAndQuantityInput = await this.#inputView.getInputProductAndQuantity();
-    this.#convenienceStore.sell(productAndQuantityInput);
+    const productStocksToSell = this.#convenienceStore.getProductStocksToSell(productAndQuantityInput);
+    productStocksToSell.forEach(productStockToSell => {
+      this.#processToSell(productStockToSell)
+
+    })
   }
 
   #printConvenienceStoreStorage(productList) {
@@ -26,6 +30,13 @@ class ConvenienceStoreController {
       const productInfoDTO = ProductInfoDTO.of(this.#convenienceStore.getProductInfo(product));
       this.#outputView.printProductInfo(productInfoDTO);
     })
+  }
+
+  #processToSell(productStock){
+    const maxPromotionQuantity = this.#convenienceStore.getMaxPromotionQuantity(productStock)
+    if(this.#convenienceStore.isExceedPromotionStock(productStock)){
+      // TODO : 재고가 몇개 초과하는지 구한 후 입력받기
+    }
   }
 }
 

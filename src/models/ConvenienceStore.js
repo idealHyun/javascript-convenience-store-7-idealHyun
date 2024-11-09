@@ -1,8 +1,8 @@
 import DocsLoader from './DocsLoader.js';
-import { DOCS_CONFIG } from '../constants/docsConfig.js';
 import Parser from './Parser.js';
-import { DateTimes } from '@woowacourse/mission-utils';
 import ProductStock from './ProductStock.js';
+import { DOCS_CONFIG } from '../constants/docsConfig.js';
+import { DateTimes } from '@woowacourse/mission-utils';
 import { ERROR_MESSAGE } from '../constants/message.js';
 import { STORE_CONFIG } from '../constants/storeConfig.js';
 
@@ -36,33 +36,36 @@ class ConvenienceStore {
     return { productName, price, productQuantity, promotionProductQuantity, promotionName };
   }
 
-  sell(InputString){
-    const productStocksToSell = InputString.split(',').map(item => {
+  getProductStocksToSell(InputString){
+    return InputString.split(',').map(item => {
       const [productName, quantityString] = item.replace(/[\[\]]/g, '').split('-');
       this.#validateProductName(productName);
       this.#validateQuantity(productName,quantityString);
 
       return new ProductStock(productName,Number(quantityString));
     });
+  }
 
-    // TODO: 프로모션 재고 먼저 차감하기
-    productStocksToSell.forEach((productStock) => {
-      // productStock 에서 물건 이름 꺼내서
-      const productName = productStock.getProductName();
+  isExceedPromotionStock(productStock){
+    if( this.#productStockMap.get(productStock.getProductName()).promotion ){
+      return productStock.getQuantity() > this.#productStockMap.get(productStock.getProductName()).promotion.getQuantity();
+    }
+    return false;
+  }
 
-      // Map 에서 promotion 정보에서 buy,get 꺼내서 현재 물건 개수로 프로모션 잘 이루어지는지 확인
-      const promotion = this.#promotionMap.get(productName);
-      promotion.calculateBonusQuantity(productStock.getQuantity());
+  getMaxPromotionQuantity(productStock){
+    const promotion = this.#getPromotionForProductName(productStock.getProductName())
+    if(promotion){
+      return promotion.calculateMaxPromotionQuantity(productStock.getQuantity());
+    }
+    return 0;
+  }
 
-      // 확인결과, 해당 수량만큼 안가져오면 메세지 띄우기
-
-      // 프로모션 재고가 수량 넘긴 경우 일부 수량 정가 결제 메세지 띄우기
-      // 정가 결제 안할시 그만큼 수량 빼기
-
-      // 멤버십 할인 적용 여부 띄우기
-
-      // 총 판매 정보 리턴하기
-    })
+  #getPromotionForProductName(productName){
+    if ( this.#productStockMap.get(productName).promotion){
+      return this.#promotionMap.get(this.#productStockMap.get(productName).promotion.getPromotionName());
+    }
+    return null;
   }
 
   #validateProductName(productName){
