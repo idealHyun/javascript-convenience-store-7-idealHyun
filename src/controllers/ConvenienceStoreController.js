@@ -1,5 +1,6 @@
 import ProductInfoDTO from '../dtos/ProductInfoDTO.js';
 import ProductPromotionInfoDTO from '../dtos/ProductPromotionInfoDTO.js';
+import productPromotionInfoDTO from '../dtos/ProductPromotionInfoDTO.js';
 
 class ConvenienceStoreController {
   #convenienceStore;
@@ -35,6 +36,7 @@ class ConvenienceStoreController {
 
   async #processToSell(productStock){
     const maxPromotionQuantity = this.#convenienceStore.getMaxPromotionQuantity(productStock)
+
     if(maxPromotionQuantity > 0){
       if(this.#convenienceStore.isExceedPromotionStock(productStock)){
         const exceedCount = this.#convenienceStore.getExceedCount(productStock);
@@ -42,7 +44,12 @@ class ConvenienceStoreController {
         this.#outputView.printExceedPromotionProductInfo(productPromotionInfoDTO);
         await this.#inputView.getInputYesOrNo();
       } else{
-        // 프로모션이 적용 기낭한 상품에 대해 고객이 가져오지 않았을 때, 혜택에 대한 메세지
+        const bonusProductQuantity = maxPromotionQuantity - productStock.getQuantity();
+        if(bonusProductQuantity > 0){
+          const productPromotionInfoDTO =  ProductPromotionInfoDTO.of(productStock.getProductName(),bonusProductQuantity);
+          this.#outputView.printGuidePromotionProductInfo(productPromotionInfoDTO);
+          await this.#inputView.getInputYesOrNo();
+        }
       }
     } else{
       // 그냥 계산

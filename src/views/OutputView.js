@@ -1,5 +1,5 @@
 import { Console } from '@woowacourse/mission-utils';
-import { EXCEED_QUANTITY_MESSAGE, SYSTEM_MESSAGE } from '../constants/message.js';
+import { EXCEED_QUANTITY_MESSAGE, PROMOTION_GUIDE_MESSAGE, SYSTEM_MESSAGE } from '../constants/message.js';
 import { STORE_CONFIG } from '../constants/storeConfig.js';
 
 class OutputView {
@@ -16,6 +16,10 @@ class OutputView {
 
   printExceedPromotionProductInfo(productPromotionInfoDTO){
     Console.print(EXCEED_QUANTITY_MESSAGE(productPromotionInfoDTO.getProductName(),productPromotionInfoDTO.getProductQuantity()));
+  }
+
+  printGuidePromotionProductInfo(productPromotionInfoDTO){
+    Console.print(PROMOTION_GUIDE_MESSAGE(productPromotionInfoDTO.getProductName(),productPromotionInfoDTO.getProductQuantity()));
   }
 
   #printPromotionProductInfo(productName,price,quantity,promotionName) {
