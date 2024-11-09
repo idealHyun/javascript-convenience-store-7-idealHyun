@@ -20,6 +20,20 @@ class InputView {
     return answer === this.#YES;
   }
 
+  async getUseMembershipDiscount(){
+    const answer = await Console.readLineAsync(SYSTEM_MESSAGE.INPUT.REQUEST_MEMBERSHIP_DISCOUNT);
+    this.#validateAnswer(answer);
+
+    return answer === this.#YES;
+  }
+
+  async getInputRepurchase(){
+    const answer = await Console.readLineAsync(SYSTEM_MESSAGE.INPUT.REQUEST_REPURCHASE);
+    this.#validateAnswer(answer);
+
+    return answer === this.#YES;
+  }
+
   #validateAnswer(value){
     this.#checkBlank(value);
     this.#checkYOrN(value);

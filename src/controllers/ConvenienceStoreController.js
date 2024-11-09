@@ -22,12 +22,12 @@ class ConvenienceStoreController {
 
     const productAndQuantityInput = await this.#inputView.getInputProductAndQuantity();
     const productStocksToSell = this.#convenienceStore.getProductStocksToSell(productAndQuantityInput);
-    productStocksToSell.forEach(productStockToSell => {
-      this.#processToSell(productStockToSell);
-    });
-    // TODO: 멤버십 할인 물어보기
+    for (const productStockToSell of productStocksToSell) {
+      await this.#processToSell(productStockToSell);
+    }
+    await this.#inputView.getUseMembershipDiscount();
+    await this.#inputView.getInputRepurchase();
     // TODO: 영수증 보여주기
-    // TODO: 재구매 여부 물어보기
   }
 
   #printConvenienceStoreStorage(productList) {
