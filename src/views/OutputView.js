@@ -23,9 +23,7 @@ class OutputView {
   }
 
   printGuidePromotionProductInfo(productPromotionInfoDTO){
-    if(productPromotionInfoDTO.getProductQuantity()>0){
-      Console.print(SYSTEM_MESSAGE.output.promotionGuide(productPromotionInfoDTO.getProductName(),productPromotionInfoDTO.getProductQuantity()));
-    }
+    Console.print(SYSTEM_MESSAGE.output.promotionGuide(productPromotionInfoDTO.getProductName(),productPromotionInfoDTO.getProductQuantity()));
   }
 
   #printPromotionProductInfo(productName,price,quantity,promotionName) {
