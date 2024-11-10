@@ -6,6 +6,10 @@ import { DateTimes } from '@woowacourse/mission-utils';
 import { ERROR_MESSAGE } from '../constants/message.js';
 import { STORE_CONFIG } from '../constants/storeConfig.js';
 import Receipt from './Receipt.js';
+import PurchasedProductDTO from '../dtos/PurchasedProductDTO.js';
+import BonusProductDTO from '../dtos/BonusProductDTO.js';
+import TotalInfoDTO from '../dtos/TotalInfoDTO.js';
+import ReceiptDTO from '../dtos/ReceiptDTO.js';
 
 class ConvenienceStore {
   #productMap;
@@ -123,6 +127,35 @@ class ConvenienceStore {
   getPromotionSetSize(productName){
     const promotion = this.#getPromotionForProductName(productName);
     return promotion.calculatePromotionSetSize();
+  }
+
+  calculatePurchaseRecord(applyDiscount) {
+
+    const purchasedProductList = this.#receipt.getTotalProductsQuantity();
+
+    const purchasedProductDTOs = Object.entries(purchasedProductList).map(([name, { quantity, price }]) => {
+      return new PurchasedProductDTO(name, quantity, price * quantity);
+    });
+
+    const bonusProductList = this.#receipt.getBonusProduct();
+    const bonusProductDTOs = Object.entries(bonusProductList).map(([name, { quantity }]) => {
+      return new BonusProductDTO(name, quantity);
+    });
+
+    const totalPurchaseAmount = this.#receipt.getTotalPurchaseAmount();
+    const promotionDiscount = this.#receipt.getTotalPromotionDiscount();
+    const membershipDiscount = applyDiscount ? this.#receipt.getMembershipDiscountAmount() : 0;
+    const finalAmount = totalPurchaseAmount - promotionDiscount - membershipDiscount;
+
+    const totalInfoDTO = new TotalInfoDTO(
+      this.#receipt.getTotalQuantity(),
+      totalPurchaseAmount,
+      promotionDiscount,
+      membershipDiscount,
+      finalAmount
+    );
+
+    return new ReceiptDTO(purchasedProductDTOs, bonusProductDTOs, totalInfoDTO);
   }
 
   #getPromotionForProductName(productName){

@@ -1,4 +1,4 @@
-class PromotionProductDTO{
+class BonusProductDTO {
   constructor(name, quantity) {
     this.name = name;
     this.quantity = quantity;
@@ -13,4 +13,4 @@ class PromotionProductDTO{
   }
 }
 
-export default PromotionProductDTO;
+export default BonusProductDTO;
