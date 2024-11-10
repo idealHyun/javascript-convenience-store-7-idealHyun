@@ -4,26 +4,49 @@ import Product from './Product.js';
 import Promotion from './Promotion.js';
 
 class Parser {
+  #REPLACE_REGEX = /[\[\]]/g;
+  #NULL = 'null';
+  #COMMA = ',';
+  #BREAK_LINE = '\n';
+  #BAR = '-';
+  #SNAKE_CASE_START_DATE = 'start_date';
+  #SNAKE_CASE_END_DATE = 'end_date';
+  #CAMEL_CASE_START_DATE = 'startDate';
+  #CAMEL_CASE_END_DATE = 'endDate';
+
   parsePromotionsData(fileData) {
     const { headers, dataLines } = this.#extractHeadersAndDataLines(fileData);
     const promotionMap = new Map();
 
-    const normalizedHeaders = headers.map(header => {
-      if (header === 'start_date') return 'startDate';
-      if (header === 'end_date') return 'endDate';
-      return header;
-    });
-
-    dataLines.forEach(line => {
-      const values = this.#splitAndTrim(line, ',');
-      const { name, buy, get, startDate, endDate } = this.#mapValuesToObject(normalizedHeaders, values);
-      promotionMap.set(name, this.#createPromotion(name, buy, get, startDate, endDate));
-    });
+    const CamelCaseHeaders = this.#convertToCamelCaseHeaders(headers);
+    this.#processDataLines(dataLines, CamelCaseHeaders, promotionMap);
 
     return promotionMap;
   }
 
-  #createPromotion(name, buy, get, startDate, endDate ) {
+  #convertToCamelCaseHeaders(headers) {
+    return headers.map((header) => {
+      if (header === this.#SNAKE_CASE_START_DATE)
+        return this.#CAMEL_CASE_START_DATE;
+      if (header === this.#SNAKE_CASE_END_DATE)
+        return this.#CAMEL_CASE_END_DATE;
+      return header;
+    });
+  }
+
+  #processDataLines(dataLines, headers, promotionMap) {
+    dataLines.forEach((line) => {
+      const values = this.#splitAndTrim(line, this.#COMMA);
+      const productData = this.#mapValuesToObject(headers, values);
+
+      promotionMap.set(
+        productData.name,
+        this.#createPromotion({ ...productData }),
+      );
+    });
+  }
+
+  #createPromotion({ name, buy, get, startDate, endDate }) {
     return new Promotion(name, buy, get, startDate, endDate);
   }
 
@@ -39,12 +62,21 @@ class Parser {
     return { productMap, productStockMap };
   }
 
+  parseProductInfo(inputString) {
+    return inputString.split(this.#COMMA).map((item) => {
+      const [productName, quantityString] = item
+        .replace(this.#REPLACE_REGEX, '')
+        .split(this.#BAR);
+      return { productName, quantityString };
+    });
+  }
+
   #processDataLine(line, headers, productMap, productStockMap) {
-    const values = this.#splitAndTrim(line, ',');
+    const values = this.#splitAndTrim(line, this.#COMMA);
     const productData = this.#mapValuesToObject(headers, values);
 
-    this.#addProductToMap(productMap, productData);
-    this.#addProductStockToMap(productStockMap, productData);
+    this.#addProductToMap(productMap, { ...productData });
+    this.#addProductStockToMap(productStockMap, { ...productData });
   }
 
   #addProductToMap(productMap, { name, price }) {
@@ -55,33 +87,46 @@ class Parser {
   }
 
   #addProductStockToMap(productStockMap, { name, quantity, promotion }) {
-    const stockEntry = productStockMap.get(name) || {
-      promotion: null,
-      noPromotion: null,
-    };
+    const stockEntry =
+      productStockMap.get(name) || this.#initializeStockEntry();
 
-    if (promotion && promotion.toLowerCase() !== 'null') {
-      stockEntry.promotion = new PromotionProductStock(
-        name,
-        quantity,
-        promotion,
-      );
+    if (this.#hasPromotion(promotion)) {
+      this.#setPromotionStock(stockEntry, name, quantity, promotion);
     } else {
-      stockEntry.noPromotion = new ProductStock(name, quantity);
+      this.#setNoPromotionStock(stockEntry, name, quantity);
     }
 
     productStockMap.set(name, stockEntry);
   }
 
+  #initializeStockEntry() {
+    return { promotion: null, noPromotion: null };
+  }
+
+  #hasPromotion(promotion) {
+    return promotion && promotion.toLowerCase() !== this.#NULL;
+  }
+
+  #setPromotionStock(stockEntry, name, quantity, promotion) {
+    stockEntry.promotion = new PromotionProductStock(name, quantity, promotion);
+  }
+
+  #setNoPromotionStock(stockEntry, name, quantity) {
+    stockEntry.noPromotion = new ProductStock(name, quantity);
+  }
+
   #extractHeadersAndDataLines(fileData) {
-    const [headerLine, ...dataLines] = this.#splitAndTrim(fileData, '\n');
-    const headers = this.#splitAndTrim(headerLine, ',');
+    const [headerLine, ...dataLines] = this.#splitAndTrim(
+      fileData,
+      this.#BREAK_LINE,
+    );
+    const headers = this.#splitAndTrim(headerLine, this.#COMMA);
     return { headers, dataLines };
   }
 
   #mapValuesToObject(headers, values) {
     return headers.reduce((obj, header, index) => {
-      obj[header] = values[index] === 'null' ? null : values[index];
+      obj[header] = values[index] === this.#NULL ? null : values[index];
       return obj;
     }, {});
   }
