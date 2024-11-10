@@ -27,8 +27,10 @@ class ConvenienceStore {
     );
     this.#productMap = productMap;
     this.#productStockMap = productStockMap;
+  }
 
-    return this.#getProductList();
+  getProductList(){
+    return Array.from(this.#productMap.keys());
   }
 
   createReceipt(){
@@ -166,7 +168,7 @@ class ConvenienceStore {
   }
 
   #validateProductName(productName){
-    this.#checkProductName(this.#getProductList(),productName)
+    this.#checkProductName(this.getProductList(),productName)
   }
 
   #validateQuantity(productName,quantityString){
@@ -205,10 +207,6 @@ class ConvenienceStore {
     const promotionProductQuantity = this.#getPromotionProductQuantity(totalProductStock.promotion);
 
     return productQuantity + promotionProductQuantity;
-  }
-
-  #getProductList(){
-    return Array.from(this.#productMap.keys());
   }
 
   #getPromotionProductQuantity(promotionProductStock){

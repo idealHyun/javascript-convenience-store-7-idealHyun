@@ -13,28 +13,29 @@ class ConvenienceStoreController {
   }
 
   async run() {
-    const productList = await this.#convenienceStore.loadInitData();
+    await this.#convenienceStore.loadInitData();
+    let isRepurchase;
+    do {
+      const productList = this.#convenienceStore.getProductList();
+      this.#outputView.printWelcomeMessage();
+      this.#printConvenienceStoreStorage(productList);
 
-    this.#outputView.printWelcomeMessage();
-    this.#printConvenienceStoreStorage(productList);
-
-    while (true) {
-      try {
-        const productAndQuantityInput = await this.#inputView.getInputProductAndQuantity();
-        await this.#processAllProductStocksToSell(productAndQuantityInput);
-        break;
-      } catch (error) {
-        this.#outputView.printMessage(error.message);
+      while (true) {
+        try {
+          const productAndQuantityInput = await this.#inputView.getInputProductAndQuantity();
+          await this.#processAllProductStocksToSell(productAndQuantityInput);
+          break;
+        } catch (error) {
+          this.#outputView.printMessage(error.message);
+        }
       }
-    }
 
-    const applyDiscount =  await this.#inputView.getUseMembershipDiscount();
+      const applyDiscount = await this.#inputView.getUseMembershipDiscount();
+      const receiptDTO = this.#convenienceStore.calculatePurchaseRecord(applyDiscount);
+      this.#outputView.printReceipt(receiptDTO);
 
-    // TODO: 영수증 리턴해서 DTO 만들어서 outputView 에 넘겨주기
-    const receiptDTO =  this.#convenienceStore.calculatePurchaseRecord(applyDiscount)
-    this.#outputView.printReceipt(receiptDTO);
-
-    await this.#inputView.getInputRepurchase();
+      isRepurchase = await this.#inputView.getInputRepurchase();
+    } while (isRepurchase);
   }
 
   async #processAllProductStocksToSell(productAndQuantityInput) {
