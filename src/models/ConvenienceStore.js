@@ -67,7 +67,7 @@ class ConvenienceStore {
 
   getMaxPromotionQuantity(productStockToSell){
     const promotion = this.#getPromotionForProductName(productStockToSell.getProductName())
-    if(promotion){
+    if(promotion && promotion.isOngoingPromotion(DateTimes.now())){
       const promotionProductCount = this.#productStockMap.get(productStockToSell.getProductName()).promotion.getQuantity()
       return promotion.calculateMaxPromotionQuantity(productStockToSell.getQuantity(),promotionProductCount);
     }
