@@ -8,16 +8,22 @@ class Parser {
     const { headers, dataLines } = this.#extractHeadersAndDataLines(fileData);
     const promotionMap = new Map();
 
+    const normalizedHeaders = headers.map(header => {
+      if (header === 'start_date') return 'startDate';
+      if (header === 'end_date') return 'endDate';
+      return header;
+    });
+
     dataLines.forEach(line => {
       const values = this.#splitAndTrim(line, ',');
-      const { name, ...otherData } = this.#mapValuesToObject(headers, values);
-      promotionMap.set(name, this.#createPromotion(name, otherData));
+      const { name, buy, get, startDate, endDate } = this.#mapValuesToObject(normalizedHeaders, values);
+      promotionMap.set(name, this.#createPromotion(name, buy, get, startDate, endDate));
     });
 
     return promotionMap;
   }
 
-  #createPromotion(name, { buy, get, startDate, endDate }) {
+  #createPromotion(name, buy, get, startDate, endDate ) {
     return new Promotion(name, buy, get, startDate, endDate);
   }
 
