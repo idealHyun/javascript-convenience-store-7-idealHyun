@@ -62,6 +62,19 @@ class ConvenienceStore {
     return 0;
   }
 
+  decrementProductQuantity(isExceed,productName,decrementQuantity){
+    if(isExceed){
+      // 프로모션 재고 감소
+      const quantity = this.#getPromotionProductQuantity(this.#productStockMap.get(productName).promotion)
+      this.#productStockMap.get(productName).promotion.decrementQuantity(quantity)
+      // 일반 재고 감소
+      this.#productStockMap.get(productName).noPromotion.decrementQuantity(decrementQuantity - quantity)
+    }else{
+      // 프로모션 재고만 감소
+      this.#productStockMap.get(productName).promotion.decrementQuantity(decrementQuantity)
+    }
+  }
+
   #getPromotionForProductName(productName){
     if ( this.#productStockMap.get(productName).promotion){
       return this.#promotionMap.get(this.#productStockMap.get(productName).promotion.getPromotionName());

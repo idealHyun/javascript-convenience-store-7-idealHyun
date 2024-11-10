@@ -3,13 +3,11 @@ import ProductPromotionInfoDTO from '../dtos/ProductPromotionInfoDTO.js';
 
 class ConvenienceStoreController {
   #convenienceStore;
-  #receipt;
   #inputView;
   #outputView;
 
-  constructor(convenienceStore, receipt, inputView, outputView) {
+  constructor(convenienceStore,inputView, outputView) {
     this.#convenienceStore = convenienceStore;
-    this.#receipt = receipt;
     this.#inputView = inputView;
     this.#outputView = outputView;
   }
@@ -27,7 +25,7 @@ class ConvenienceStoreController {
 
     await this.#inputView.getUseMembershipDiscount();
 
-    // TODO: 영수증 보여주기
+    // TODO: 영수증 리턴해서 DTO 만들어서 outputView 에 넘겨주기
 
     await this.#inputView.getInputRepurchase();
   }
@@ -50,66 +48,63 @@ class ConvenienceStoreController {
   async #processToSell(productStockToSell) {
     const maxPromotionQuantity = this.#convenienceStore.getMaxPromotionQuantity(productStockToSell);
 
-    // 프로모션의 영향을 받지 않고 그냥 결제하는 경우
     if (maxPromotionQuantity === 0) {
-      this.#receipt.addNotAppliedPromotionProduct(productStockToSell);
+      // this.#receipt.addNotAppliedPromotionProduct(productStockToSell);
       return;
     }
 
-    const productPromotionInfoDTO = await this.#getPromotionInfoDTO(productStockToSell, maxPromotionQuantity);
     const isExceed = this.#convenienceStore.isExceedPromotionStock(productStockToSell);
 
-    await this.#handlePromotionDecision(productPromotionInfoDTO, isExceed, productStockToSell);
-  }
-
-  async #getPromotionInfoDTO(productStock, maxPromotionQuantity) {
-    const isExceed = this.#convenienceStore.isExceedPromotionStock(productStock);
-    let quantity;
-    if (isExceed){
-      quantity = productStock.getQuantity() - maxPromotionQuantity;
-      // quantity = this.#convenienceStore.getExceedCount(productStock);
-    } else{
-      quantity = maxPromotionQuantity - productStock.getQuantity();
-    }
-
-    return this.#createPromotionInfoDTO(productStock.getProductName(), quantity);
-  }
-
-  // 프로모션 여부에 따른 출력 및 사용자 입력 처리
-  async #handlePromotionDecision(productPromotionInfoDTO, isExceed, productStock) {
     if (isExceed) {
+      // 정가 결제할 수량
+      const quantity = productStockToSell.getQuantity() - maxPromotionQuantity;
+      const productPromotionInfoDTO = ProductPromotionInfoDTO.of(productStockToSell.getProductName(), quantity);
+
       this.#outputView.printExceedPromotionProductInfo(productPromotionInfoDTO);
+      const userDecision = await this.#inputView.getInputYesOrNo();
+
+      if (userDecision) {
+        // 재고 차감
+        this.#convenienceStore.decrementProductQuantity(isExceed,productStockToSell.getProductName(),productStockToSell.getQuantity());
+        // 초과 수량 정가 결제
+        // TODO : 영수증에 어떻게 추가할래
+        // 영수증에 프로모션 적용된건 maxQuantity 만큼 추가
+        // 일반결제하는건 quantity 만큼 추가
+        // TODO :증정품은 개수 구해서 넣어야함
+      }else{
+        // 재고 차감
+        this.#convenienceStore.decrementProductQuantity(isExceed,productStockToSell.getProductName(),productStockToSell.getQuantity()-quantity);
+        // 초과 수량은 결제하지 않음
+      }
+
     } else {
-      this.#outputView.printGuidePromotionProductInfo(productPromotionInfoDTO);
-    }
+      // 증정 받을 수량
+      const quantity = maxPromotionQuantity - productStockToSell.getQuantity();
+      // 증정 받을 수량이 있으면 메세지 출력
+      if(quantity>0){
+        const productPromotionInfoDTO = ProductPromotionInfoDTO.of(productStockToSell.getProductName(), quantity);
 
-    const userDecision = await this.#inputView.getInputYesOrNo();
-    if (userDecision) {
-      await this.#applyPromotion(isExceed, productStock);
+        this.#outputView.printGuidePromotionProductInfo(productPromotionInfoDTO);
+        const userDecision = await this.#inputView.getInputYesOrNo();
+
+        if (userDecision) {
+          // 1개 증정 받기
+        }else{
+          // 1개 증정 받지 않기
+        }
+      } else{
+        // 그냥 재고 감소
+        this.#convenienceStore.decrementProductQuantity(isExceed,productStockToSell.getProductName(),productStockToSell.getQuantity());
+      }
     }
   }
 
-  // 사용자 확인 후 프로모션 적용 처리
-  async #applyPromotion(isExceed, productStock) {
-    if (isExceed) {
-      // TODO: 프로모션 재고 차감하고 일반재고 차감하기
-      // TODO: 증정 개수 계산해서 증정에 추가하기
-      // TODO: 나머지는 구매한 물품에 추가하기
-    } else {
-      // TODO: 프로모션 재고 차감하기
-      // TODO: 프로모션 물건 증정에 추가하기
-    }
-  }
-
-  #createPromotionInfoDTO(productName, quantity) {
-    return ProductPromotionInfoDTO.of(productName, quantity);
-  }
 
   async #retryInputUntilSuccess(inputFunction, taskFunction) {
     while (true) {
       try {
         const result = await inputFunction();
-        taskFunction(result);
+        await taskFunction(result);
 
         return;
       } catch (error) {

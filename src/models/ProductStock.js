@@ -20,6 +20,10 @@ class ProductStock {
     return this.#productName;
   }
 
+  decrementQuantity(count) {
+    this.#quantity -= count;
+  }
+
   #validateProduct(product) {
     this.#checkNullAndUndefined(product);
   }
