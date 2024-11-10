@@ -5,11 +5,13 @@ import { DOCS_CONFIG } from '../constants/docsConfig.js';
 import { DateTimes } from '@woowacourse/mission-utils';
 import { ERROR_MESSAGE } from '../constants/message.js';
 import { STORE_CONFIG } from '../constants/storeConfig.js';
+import Receipt from './Receipt.js';
 
 class ConvenienceStore {
   #productMap;
   #promotionMap;
   #productStockMap;
+  #receipt;
 
   async loadInitData() {
     const parser = new Parser();
@@ -23,6 +25,10 @@ class ConvenienceStore {
     this.#productStockMap = productStockMap;
 
     return this.#getProductList();
+  }
+
+  createReceipt(){
+    this.#receipt = new Receipt();
   }
 
   getProductInfo(productName){
@@ -79,6 +85,44 @@ class ConvenienceStore {
   // 일반 상품의 재고를 감소 시키는 메소드
   decrementProductQuantity(productName,decrementQuantity){
     this.#productStockMap.get(productName).noPromotion.decrementQuantity(decrementQuantity)
+  }
+
+  // 영수증에 프로모션이 적용된 상품 추가하기
+  addAppliedPromotionProductToReceipt(productName,quantity){
+    this.#receipt.addAppliedPromotionProduct({
+      product : this.#productMap.get(productName),
+      quantity : quantity
+    });
+  }
+
+  // 영수증에 프로모션이 적용되지 않은 상품 추가하기
+  addNotAppliedPromotionProductToReceipt(productName,quantity){
+    this.#receipt.addNotAppliedPromotionProduct(
+      {
+        product : this.#productMap.get(productName),
+        quantity : quantity
+      }
+    );
+  }
+
+  // 영수증에 증정 상품에 추가하기
+  addBonusProductToReceipt(productName,quantity){
+    this.#receipt.addBonusProduct(
+      {
+        product : this.#productMap.get(productName),
+        quantity : quantity
+      }
+    );
+  }
+
+  getBonusProductCount(productName,purchaseQuantity){
+    const promotion = this.#getPromotionForProductName(productName);
+    return promotion.calculateBonusCount(purchaseQuantity);
+  }
+
+  getPromotionSetSize(productName){
+    const promotion = this.#getPromotionForProductName(productName);
+    return promotion.calculatePromotionSetSize();
   }
 
   #getPromotionForProductName(productName){

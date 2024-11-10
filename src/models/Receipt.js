@@ -9,16 +9,16 @@ class Receipt {
     this.#bonusProducts = []
   }
 
-  addAppliedPromotionProduct(purchasedProductStock) {
-    this.#appliedPromotionProducts.push(purchasedProductStock);
+  addAppliedPromotionProduct(purchasedProductAndQuantity) {
+    this.#appliedPromotionProducts.push(purchasedProductAndQuantity);
   }
 
-  addNotAppliedPromotionProduct(purchasedProductStock) {
-    this.#notAppliedPromotionProducts.push(purchasedProductStock);
+  addNotAppliedPromotionProduct(purchasedProductAndQuantity) {
+    this.#notAppliedPromotionProducts.push(purchasedProductAndQuantity);
   }
 
-  addBonusProduct(bonusProductStock) {
-    this.#bonusProducts.push(bonusProductStock);
+  addBonusProduct(bonusProductAndQuantity) {
+    this.#bonusProducts.push(bonusProductAndQuantity);
   }
 }
 

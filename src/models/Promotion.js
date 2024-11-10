@@ -40,6 +40,15 @@ class Promotion {
     return totalPromotionQuantity;
   }
 
+  // 구매 개수에 따른 증정 개수
+  calculateBonusCount(PurchaseQuantity) {
+    return PurchaseQuantity / (this.#buy + this.#get);
+  }
+
+  calculatePromotionSetSize(){
+    return this.#buy + this.#get;
+  }
+
   #validateFields(name, buy, get, startDate, endDate) {
     this.#validateName(name);
     this.#validateBuy(buy);

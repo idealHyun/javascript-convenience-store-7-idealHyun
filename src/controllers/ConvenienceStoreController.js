@@ -18,10 +18,15 @@ class ConvenienceStoreController {
     this.#outputView.printWelcomeMessage();
     this.#printConvenienceStoreStorage(productList);
 
-    await this.#retryInputUntilSuccess(
-      () => this.#inputView.getInputProductAndQuantity(),
-      (productAndQuantityInput) => this.#processAllProductStocksToSell(productAndQuantityInput)
-    );
+    while (true) {
+      try {
+        const productAndQuantityInput = await this.#inputView.getInputProductAndQuantity();
+        await this.#processAllProductStocksToSell(productAndQuantityInput);
+        break;
+      } catch (error) {
+        this.#outputView.printMessage(error.message);
+      }
+    }
 
     await this.#inputView.getUseMembershipDiscount();
 
@@ -32,6 +37,8 @@ class ConvenienceStoreController {
 
   async #processAllProductStocksToSell(productAndQuantityInput) {
     const productStocksToSell = this.#convenienceStore.getProductStocksToSell(productAndQuantityInput);
+    // 영수증 클래스 생성시키기
+    this.#convenienceStore.createReceipt();
 
     for (const productStockToSell of productStocksToSell) {
       await this.#processToSell(productStockToSell);
@@ -48,11 +55,14 @@ class ConvenienceStoreController {
   async #processToSell(productStockToSell) {
     const maxPromotionQuantity = this.#convenienceStore.getMaxPromotionQuantity(productStockToSell);
 
+    // 프로모션이 없는 제품의 경우
     if (maxPromotionQuantity === 0) {
-      // this.#receipt.addNotAppliedPromotionProduct(productStockToSell);
+      this.#convenienceStore.decrementProductQuantity(productStockToSell.getProductName(),productStockToSell.getQuantity());
+      this.#convenienceStore.addNotAppliedPromotionProductToReceipt(productStockToSell.getProductName(),productStockToSell.getQuantity());
       return;
     }
 
+    // 구매 수량이 프로모션 재고를 넘어가는지에 대한 여부
     const isExceed = this.#convenienceStore.isExceedPromotionStock(productStockToSell);
 
     if (isExceed) {
@@ -65,16 +75,22 @@ class ConvenienceStoreController {
 
       if (userDecision) {
         // 재고 차감
-        this.#convenienceStore.decrementProductQuantity(isExceed,productStockToSell.getProductName(),productStockToSell.getQuantity());
+        this.#convenienceStore.decrementPromotionProductQuantity(isExceed,productStockToSell.getProductName(),productStockToSell.getQuantity());
         // 초과 수량 정가 결제
-        // TODO : 영수증에 어떻게 추가할래
+
         // 영수증에 프로모션 적용된건 maxQuantity 만큼 추가
+        this.#convenienceStore.addAppliedPromotionProductToReceipt(productStockToSell.getProductName(),maxPromotionQuantity);
         // 일반결제하는건 quantity 만큼 추가
-        // TODO :증정품은 개수 구해서 넣어야함
+        this.#convenienceStore.addNotAppliedPromotionProductToReceipt(productStockToSell.getProductName(),quantity)
+        const bonusCount = this.#convenienceStore.getBonusProductCount(productStockToSell.getProductName(),maxPromotionQuantity);
+        this.#convenienceStore.addBonusProductToReceipt(productStockToSell.getProductName(),bonusCount);
       }else{
         // 재고 차감
-        this.#convenienceStore.decrementProductQuantity(isExceed,productStockToSell.getProductName(),productStockToSell.getQuantity()-quantity);
+        this.#convenienceStore.decrementPromotionProductQuantity(isExceed,productStockToSell.getProductName(),productStockToSell.getQuantity()-quantity);
         // 초과 수량은 결제하지 않음
+        this.#convenienceStore.addAppliedPromotionProductToReceipt(productStockToSell.getProductName(),maxPromotionQuantity);
+        const bonusCount = this.#convenienceStore.getBonusProductCount(productStockToSell.getProductName(),maxPromotionQuantity);
+        this.#convenienceStore.addBonusProductToReceipt(productStockToSell.getProductName(),bonusCount);
       }
 
     } else {
@@ -88,23 +104,41 @@ class ConvenienceStoreController {
         const userDecision = await this.#inputView.getInputYesOrNo();
 
         if (userDecision) {
-          // 1개 증정 받기
+          // 증정 받을 수량 추가해서 재고 감소
+          this.#convenienceStore.decrementPromotionProductQuantity(isExceed,productStockToSell.getProductName(),productStockToSell.getQuantity()+quantity);
+          // 1개 증정 받고 영수증 프로모션 적용에 추가
+          this.#convenienceStore.addAppliedPromotionProductToReceipt(productStockToSell.getProductName(),productStockToSell.getQuantity()+quantity);
+          const bonusCount = this.#convenienceStore.getBonusProductCount(productStockToSell.getProductName(),maxPromotionQuantity);
+          this.#convenienceStore.addBonusProductToReceipt(productStockToSell.getProductName(),bonusCount);
         }else{
-          // 1개 증정 받지 않기
+          // 증정 받을 수량 추가하지 않고 재고 감소
+          this.#convenienceStore.decrementPromotionProductQuantity(isExceed,productStockToSell.getProductName(),productStockToSell.getQuantity());
+          // 1개 증정 받지 않고 영수증 프로모션 미적용에 추가
+          const promotionSetSize = this.#convenienceStore.getPromotionSetSize(productStockToSell.getProductName());
+
+          this.#convenienceStore.addAppliedPromotionProductToReceipt(productStockToSell.getProductName(),productStockToSell.getQuantity() + quantity - promotionSetSize);
+          this.#convenienceStore.addNotAppliedPromotionProductToReceipt(productStockToSell.getProductName(),productStockToSell.getQuantity() % promotionSetSize)
+          const bonusCount = this.#convenienceStore.getBonusProductCount(productStockToSell.getProductName(),productStockToSell.getQuantity() + quantity - promotionSetSize);
+          this.#convenienceStore.addBonusProductToReceipt(productStockToSell.getProductName(),bonusCount);
         }
       } else{
         // 그냥 재고 감소
-        this.#convenienceStore.decrementProductQuantity(isExceed,productStockToSell.getProductName(),productStockToSell.getQuantity());
+        this.#convenienceStore.decrementPromotionProductQuantity(isExceed,productStockToSell.getProductName(),productStockToSell.getQuantity());
+
+        this.#convenienceStore.addAppliedPromotionProductToReceipt(productStockToSell.getProductName(), maxPromotionQuantity);
+        this.#convenienceStore.addNotAppliedPromotionProductToReceipt(productStockToSell.getProductName(),productStockToSell.getQuantity() - maxPromotionQuantity);
+
+        const bonusCount = this.#convenienceStore.getBonusProductCount(productStockToSell.getProductName(),maxPromotionQuantity);
+        this.#convenienceStore.addBonusProductToReceipt(productStockToSell.getProductName(),bonusCount);
       }
     }
   }
-
 
   async #retryInputUntilSuccess(inputFunction, taskFunction) {
     while (true) {
       try {
         const result = await inputFunction();
-        await taskFunction(result);
+        taskFunction(result);
 
         return;
       } catch (error) {
