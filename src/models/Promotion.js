@@ -21,13 +21,23 @@ class Promotion {
     return dayTime >= new Date(this.#startDate) && dayTime <= new Date(this.#endDate);
   }
 
-  calculateMaxPromotionQuantity(purchaseQuantity){
+  calculateMaxPromotionQuantity(purchaseQuantity, promotionProductCount) {
     const promotionSetProductCount = this.#buy + this.#get;
-    let bundleSize = Math.floor(purchaseQuantity / promotionSetProductCount);
-    if(purchaseQuantity % promotionSetProductCount >= this.#buy){
-      return promotionSetProductCount * (bundleSize + 1)
+    let totalPromotionQuantity = 0;
+    let remainingPurchaseQuantity = purchaseQuantity;
+
+    while (remainingPurchaseQuantity >= this.#buy &&
+    totalPromotionQuantity + promotionSetProductCount <= promotionProductCount) {
+
+      totalPromotionQuantity += promotionSetProductCount;
+      remainingPurchaseQuantity -= this.#buy;
+
+      if (remainingPurchaseQuantity < this.#buy) {
+        break;
+      }
     }
-    return promotionSetProductCount * bundleSize;
+
+    return totalPromotionQuantity;
   }
 
   #validateFields(name, buy, get, startDate, endDate) {
