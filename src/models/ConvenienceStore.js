@@ -53,14 +53,11 @@ class ConvenienceStore {
     return false;
   }
 
-  getExceedCount(productStock){
-    return productStock.getQuantity() - this.#productStockMap.get(productStock.getProductName()).promotion.getQuantity()
-  }
-
-  getMaxPromotionQuantity(productStock){
-    const promotion = this.#getPromotionForProductName(productStock.getProductName())
+  getMaxPromotionQuantity(productStockToSell){
+    const promotion = this.#getPromotionForProductName(productStockToSell.getProductName())
     if(promotion){
-      return promotion.calculateMaxPromotionQuantity(productStock.getQuantity());
+      const promotionProductCount = this.#productStockMap.get(productStockToSell.getProductName()).promotion.getQuantity()
+      return promotion.calculateMaxPromotionQuantity(productStockToSell.getQuantity(),promotionProductCount);
     }
     return 0;
   }

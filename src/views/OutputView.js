@@ -3,6 +3,10 @@ import { SYSTEM_MESSAGE } from '../constants/message.js';
 import { STORE_CONFIG } from '../constants/storeConfig.js';
 
 class OutputView {
+  printMessage(message) {
+    Console.print(message);
+  }
+
   printWelcomeMessage() {
     Console.print(SYSTEM_MESSAGE.output.welcome);
   }

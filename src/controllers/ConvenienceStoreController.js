@@ -20,14 +20,24 @@ class ConvenienceStoreController {
     this.#outputView.printWelcomeMessage();
     this.#printConvenienceStoreStorage(productList);
 
-    const productAndQuantityInput = await this.#inputView.getInputProductAndQuantity();
+    await this.#retryInputUntilSuccess(
+      () => this.#inputView.getInputProductAndQuantity(),
+      (productAndQuantityInput) => this.#processAllProductStocksToSell(productAndQuantityInput)
+    );
+
+    await this.#inputView.getUseMembershipDiscount();
+
+    // TODO: 영수증 보여주기
+
+    await this.#inputView.getInputRepurchase();
+  }
+
+  async #processAllProductStocksToSell(productAndQuantityInput) {
     const productStocksToSell = this.#convenienceStore.getProductStocksToSell(productAndQuantityInput);
+
     for (const productStockToSell of productStocksToSell) {
       await this.#processToSell(productStockToSell);
     }
-    await this.#inputView.getUseMembershipDiscount();
-    await this.#inputView.getInputRepurchase();
-    // TODO: 영수증 보여주기
   }
 
   #printConvenienceStoreStorage(productList) {
@@ -37,30 +47,40 @@ class ConvenienceStoreController {
     });
   }
 
-  async #processToSell(productStock) {
-    const maxPromotionQuantity = this.#convenienceStore.getMaxPromotionQuantity(productStock);
+  async #processToSell(productStockToSell) {
+    const maxPromotionQuantity = this.#convenienceStore.getMaxPromotionQuantity(productStockToSell);
 
-    if (maxPromotionQuantity <= 0) {
-      this.#receipt.addNotAppliedPromotionProduct(productStock);
+    // 프로모션의 영향을 받지 않고 그냥 결제하는 경우
+    if (maxPromotionQuantity === 0) {
+      this.#receipt.addNotAppliedPromotionProduct(productStockToSell);
       return;
     }
 
+    const productPromotionInfoDTO = await this.#getPromotionInfoDTO(productStockToSell, maxPromotionQuantity);
+    const isExceed = this.#convenienceStore.isExceedPromotionStock(productStockToSell);
+
+    await this.#handlePromotionDecision(productPromotionInfoDTO, isExceed, productStockToSell);
+  }
+
+  async #getPromotionInfoDTO(productStock, maxPromotionQuantity) {
     const isExceed = this.#convenienceStore.isExceedPromotionStock(productStock);
-    const quantity = isExceed
-      ? this.#convenienceStore.getExceedCount(productStock)
-      : maxPromotionQuantity - productStock.getQuantity();
+    let quantity;
+    if (isExceed){
+      quantity = productStock.getQuantity() - maxPromotionQuantity;
+      // quantity = this.#convenienceStore.getExceedCount(productStock);
+    } else{
+      quantity = maxPromotionQuantity - productStock.getQuantity();
+    }
 
-    const dto = this.#createPromotionInfoDTO(productStock.getProductName(), quantity);
-
-    await this.#handlePromotionDecision(dto, isExceed, productStock);
+    return this.#createPromotionInfoDTO(productStock.getProductName(), quantity);
   }
 
   // 프로모션 여부에 따른 출력 및 사용자 입력 처리
-  async #handlePromotionDecision(dto, isExceed, productStock) {
+  async #handlePromotionDecision(productPromotionInfoDTO, isExceed, productStock) {
     if (isExceed) {
-      this.#outputView.printExceedPromotionProductInfo(dto);
+      this.#outputView.printExceedPromotionProductInfo(productPromotionInfoDTO);
     } else {
-      this.#outputView.printGuidePromotionProductInfo(dto);
+      this.#outputView.printGuidePromotionProductInfo(productPromotionInfoDTO);
     }
 
     const userDecision = await this.#inputView.getInputYesOrNo();
@@ -83,6 +103,19 @@ class ConvenienceStoreController {
 
   #createPromotionInfoDTO(productName, quantity) {
     return ProductPromotionInfoDTO.of(productName, quantity);
+  }
+
+  async #retryInputUntilSuccess(inputFunction, taskFunction) {
+    while (true) {
+      try {
+        const result = await inputFunction();
+        taskFunction(result);
+
+        return;
+      } catch (error) {
+        this.#outputView.printMessage(error.message);
+      }
+    }
   }
 }
 
