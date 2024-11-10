@@ -155,6 +155,19 @@ describe('Promotion 테스트', () => {
         purchaseQuantity: 9,
         expectValue: 6
       },
+      {
+        description: 'buy가 2, get이 1일 때 2개 구매',
+        promotionInfo: {
+          name: '탄산3+1',
+          buy: 2,
+          get: 1,
+          startDate: '2024-01-01',
+          endDate: '2024-12-31',
+        },
+        promotionProductCount: 2,
+        purchaseQuantity: 2,
+        expectValue: 0
+      },
     ])('$description', ({ promotionInfo, promotionProductCount, purchaseQuantity, expectValue }) => {
       const { name, buy, get, startDate, endDate } = promotionInfo;
       const promotion = new Promotion(name, buy, get, startDate, endDate);
