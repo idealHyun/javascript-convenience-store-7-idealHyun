@@ -3,6 +3,8 @@ const STORE_CONFIG = Object.freeze({
     getQuantity: 1,
     minimumPrice: 1,
     minimumProductQuantity: 1,
+    maximumMembershipDiscount : 8000,
+    membershipDiscountRate : 0.3,
   }
 );
 
