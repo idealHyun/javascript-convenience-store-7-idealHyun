@@ -58,10 +58,14 @@ class OutputView {
   }
 
   #printPromotionProductInfo(productName,price,quantity,promotionName) {
-    if (quantity < STORE_CONFIG.minimumProductQuantity || quantity === null ) {
+    if (quantity === null ) {
       return ;
     }
-    Console.print(`- ${productName} ${price.toLocaleString()}원 ${quantity}개 ${promotionName}`);
+    if (quantity === 0 ) {
+      Console.print(`- ${productName} ${price.toLocaleString()}원 재고 없음 ${promotionName}`);
+    } else{
+      Console.print(`- ${productName} ${price.toLocaleString()}원 ${quantity}개 ${promotionName}`);
+    }
   }
 
   #printProductInfo(productName,price,quantity) {
