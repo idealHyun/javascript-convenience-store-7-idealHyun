@@ -62,7 +62,8 @@ class ConvenienceStore {
     return 0;
   }
 
-  decrementProductQuantity(isExceed,productName,decrementQuantity){
+  // 프로모션이 있는 상품의 재고를 감소시키는 메소드
+  decrementPromotionProductQuantity(isExceed, productName, decrementQuantity){
     if(isExceed){
       // 프로모션 재고 감소
       const quantity = this.#getPromotionProductQuantity(this.#productStockMap.get(productName).promotion)
@@ -73,6 +74,11 @@ class ConvenienceStore {
       // 프로모션 재고만 감소
       this.#productStockMap.get(productName).promotion.decrementQuantity(decrementQuantity)
     }
+  }
+
+  // 일반 상품의 재고를 감소 시키는 메소드
+  decrementProductQuantity(productName,decrementQuantity){
+    this.#productStockMap.get(productName).noPromotion.decrementQuantity(decrementQuantity)
   }
 
   #getPromotionForProductName(productName){
