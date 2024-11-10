@@ -32,6 +32,7 @@ class ConvenienceStoreController {
 
     // TODO: 영수증 리턴해서 DTO 만들어서 outputView 에 넘겨주기
     const receiptDTO =  this.#convenienceStore.calculatePurchaseRecord(applyDiscount)
+    this.#outputView.printReceipt(receiptDTO);
 
     await this.#inputView.getInputRepurchase();
   }

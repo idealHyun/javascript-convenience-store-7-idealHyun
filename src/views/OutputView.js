@@ -26,6 +26,37 @@ class OutputView {
     Console.print(SYSTEM_MESSAGE.output.promotionGuide(productPromotionInfoDTO.getProductName(),productPromotionInfoDTO.getProductQuantity()));
   }
 
+  printReceipt(receiptDTO){
+    Console.print(SYSTEM_MESSAGE.output.initialReceipt);
+    Console.print(SYSTEM_MESSAGE.output.purchasedProductsLine);
+    this.#printPurchasedProducts(receiptDTO.getPurchasedProducts());
+    Console.print(SYSTEM_MESSAGE.output.bonusLine);
+    this.#printBonusProducts(receiptDTO.getBonusProducts());
+    Console.print(SYSTEM_MESSAGE.output.line);
+    this.#printTotalInfo(receiptDTO.getTotalInfo());
+  }
+
+  #printPurchasedProducts(purchasedProductDTOs) {
+    purchasedProductDTOs.forEach((purchasedProductDTO) => {
+      Console.print(
+        `${purchasedProductDTO.getName()}\t\t\t${purchasedProductDTO.getQuantity()}\t${purchasedProductDTO.getAmount().toLocaleString()}`
+      );
+    });
+  }
+
+  #printBonusProducts(bonusProductDTOs) {
+    bonusProductDTOs.forEach((bonusProductDTO) => {
+      Console.print(`${bonusProductDTO.getName()}\t\t\t${bonusProductDTO.getQuantity()}`);
+    });
+  }
+
+  #printTotalInfo(totalInfoDTO) {
+    Console.print(`총구매액\t\t${totalInfoDTO.getTotalQuantity()}\t${totalInfoDTO.getTotalAmount().toLocaleString()}`);
+    Console.print(`행사할인\t\t\t-${totalInfoDTO.getPromotionDiscount().toLocaleString()}`);
+    Console.print(`멤버십할인\t\t\t-${totalInfoDTO.getMembershipDiscount().toLocaleString()}`);
+    Console.print(`내실돈\t\t\t\t${totalInfoDTO.getFinalAmount().toLocaleString()}`);
+  }
+
   #printPromotionProductInfo(productName,price,quantity,promotionName) {
     if (quantity < STORE_CONFIG.minimumProductQuantity || quantity === null ) {
       return ;

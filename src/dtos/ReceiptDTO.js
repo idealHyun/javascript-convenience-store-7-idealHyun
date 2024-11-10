@@ -1,7 +1,7 @@
 class ReceiptDTO {
-  constructor(purchasedProducts, promotionProducts, totalInfo) {
+  constructor(purchasedProducts,bonusProducts, totalInfo) {
     this.purchasedProducts = purchasedProducts;
-    this.promotionProducts = promotionProducts;
+    this.bonusProducts = bonusProducts;
     this.totalInfo = totalInfo;
   }
 
@@ -9,8 +9,8 @@ class ReceiptDTO {
     return this.purchasedProducts;
   }
 
-  getPromotionProducts() {
-    return this.promotionProducts;
+  getBonusProducts() {
+    return this.bonusProducts;
   }
 
   getTotalInfo() {

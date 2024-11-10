@@ -57,7 +57,7 @@ class Receipt {
   getBonusProduct() {
     let bonusProductList = {};
 
-    this.#notAppliedPromotionProducts.forEach(product => {
+    this.#bonusProducts.forEach(product => {
       const productName = product.product.getName();
       if (!bonusProductList[productName]) {
         bonusProductList[productName] = {
