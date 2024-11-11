@@ -68,9 +68,100 @@ describe('Promotion 테스트', () => {
           endDate: null,
         },
       },
+      {
+        description: 'name 값이 빈 문자열일 때',
+        promotionInfo: {
+          name: '',
+          buy: '2',
+          get: '1',
+          startDate: '2024-01-01',
+          endDate: '2024-12-31',
+        },
+      },
+      {
+        description: 'buy 값이 음수일 때',
+        promotionInfo: {
+          name: '탄산2+1',
+          buy: '-1',
+          get: '1',
+          startDate: '2024-01-01',
+          endDate: '2024-12-31',
+        },
+      },
+      {
+        description: 'get 값이 음수일 때',
+        promotionInfo: {
+          name: '탄산2+1',
+          buy: '2',
+          get: '-1',
+          startDate: '2024-01-01',
+          endDate: '2024-12-31',
+        },
+      },
+      {
+        description: 'buy 값이 0보다 작을 때',
+        promotionInfo: {
+          name: '탄산2+1',
+          buy: '0',
+          get: '1',
+          startDate: '2024-01-01',
+          endDate: '2024-12-31',
+        },
+      },
+      {
+        description: 'get 값이 0보다 작을 때',
+        promotionInfo: {
+          name: '탄산2+1',
+          buy: '2',
+          get: '0',
+          startDate: '2024-01-01',
+          endDate: '2024-12-31',
+        },
+      },
+      {
+        description: 'startDate가 유효하지 않은 날짜일 때',
+        promotionInfo: {
+          name: '탄산2+1',
+          buy: '2',
+          get: '1',
+          startDate: '2024-13-01',
+          endDate: '2024-12-31',
+        },
+      },
+      {
+        description: 'endDate가 유효하지 않은 날짜일 때',
+        promotionInfo: {
+          name: '탄산2+1',
+          buy: '2',
+          get: '1',
+          startDate: '2024-01-01',
+          endDate: '2024-13-01',
+        },
+      },
+      {
+        description: 'endDate가 startDate보다 빠를 때',
+        promotionInfo: {
+          name: '탄산2+1',
+          buy: '2',
+          get: '1',
+          startDate: '2024-12-31',
+          endDate: '2024-01-01',
+        },
+      },
+      {
+        description: 'name이 숫자일 때',
+        promotionInfo: {
+          name: 12345,
+          buy: '2',
+          get: '1',
+          startDate: '2024-01-01',
+          endDate: '2024-12-31',
+        },
+      },
     ])('$description', ({ promotionInfo }) => {
       expect(() => {
-        new Promotion(promotionInfo);
+        const { name, buy, get, startDate, endDate } = promotionInfo;
+        new Promotion(name, buy, get, startDate, endDate);
       }).toThrow('[ERROR]');
     });
   });
