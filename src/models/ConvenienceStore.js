@@ -57,6 +57,17 @@ class ConvenienceStore {
     });
   }
 
+  getPromotionProductQuantity(productName) {
+    if(this.#productStockMap.get(productName).promotion){
+      return this.#productStockMap.get(productName).promotion.getQuantity();
+    }
+    return 0;
+  }
+
+  isHavePromotion(productName){
+    return !!this.#productStockMap.get(productName).promotion;
+  }
+
   isExceedPromotionStock(productStock) {
     const promotion = this.#productStockMap.get(productStock.getProductName()).promotion;
     return promotion ? productStock.getQuantity() > promotion.getQuantity() : false;
@@ -186,8 +197,8 @@ class ConvenienceStore {
     return productStock.getQuantity();
   }
 
-  #getPromotionName(productStock) {
-    return productStock ? productStock.getPromotionName() : null;
+  #getPromotionName(promotionProductStock) {
+    return promotionProductStock ? promotionProductStock.getPromotionName() : null;
   }
 
   #isPromotionValid(promotionName) {

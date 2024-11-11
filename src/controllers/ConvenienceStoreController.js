@@ -77,104 +77,72 @@ class ConvenienceStoreController {
     const productName = productStockToSell.getProductName();
     const purchaseQuantity = productStockToSell.getQuantity();
 
-    // 프로모션이 없는 제품의 경우
-    if (maxPromotionQuantity === 0) {
-      this.#handleNoPromotionCase(productName, purchaseQuantity);
-      return;
+    // 프로모션이 없는 경우
+    if(!this.#convenienceStore.isHavePromotion(productName)){
+      this.#convenienceStore.decrementProductQuantity(productName,purchaseQuantity);
+      this.#convenienceStore.addNotAppliedPromotionProductToReceipt(productName,purchaseQuantity);
+      return ;
     }
 
-    // 구매 수량이 프로모션 재고를 초과하는지 확인
+    // 구매 수량이 프로모션 재고를 초과하는지
     const isExceed = this.#convenienceStore.isExceedPromotionStock(productStockToSell);
 
     if (isExceed) {
-      await this.#handleExceedPromotion(productStockToSell, maxPromotionQuantity, productName, purchaseQuantity);
-    } else {
-      await this.#handleWithinPromotion(productStockToSell, maxPromotionQuantity, productName, purchaseQuantity);
-    }
-  }
+      const quantityToPayFullPrice = purchaseQuantity - maxPromotionQuantity;
+      const productPromotionInfoDTO = ProductPromotionInfoDTO.of(productName, quantityToPayFullPrice);
 
-  #handleNoPromotionCase(productName, quantity) {
-    this.#convenienceStore.decrementProductQuantity(productName, quantity);
-    this.#convenienceStore.addNotAppliedPromotionProductToReceipt(productName, quantity);
-  }
-
-  async #handleExceedPromotion(productStockToSell, maxPromotionQuantity, productName, purchaseQuantity) {
-    const quantityToPayFullPrice = purchaseQuantity - maxPromotionQuantity;
-    const productPromotionInfoDTO = ProductPromotionInfoDTO.of(productName, quantityToPayFullPrice);
-
-    await this.#retryInputWithMessage(
-      () => this.#outputView.printExceedPromotionProductInfo(productPromotionInfoDTO),
-      () => this.#inputView.getInputYesOrNo(),
-      (userDecision) => {
-        if (userDecision) {
-          this.#applyExceedPromotion(productName, maxPromotionQuantity, purchaseQuantity, quantityToPayFullPrice);
-        } else {
-          this.#skipExceedPromotion(productName, maxPromotionQuantity, purchaseQuantity, quantityToPayFullPrice);
-        }
-      }
-    );
-  }
-
-  async #handleWithinPromotion(productStockToSell, maxPromotionQuantity, productName, purchaseQuantity) {
-    const extraQuantity = maxPromotionQuantity - purchaseQuantity;
-    if (extraQuantity > 0) {
       await this.#retryInputWithMessage(
-        () => this.#outputView.printGuidePromotionProductInfo(ProductPromotionInfoDTO.of(productName, extraQuantity)),
+        () => this.#outputView.printExceedPromotionProductInfo(productPromotionInfoDTO),
         () => this.#inputView.getInputYesOrNo(),
         (userDecision) => {
           if (userDecision) {
-            this.#applyWithinPromotionWithExtra(productName, purchaseQuantity, extraQuantity);
+            this.#convenienceStore.decrementPromotionProductQuantity(true, productName, purchaseQuantity);
+            this.#convenienceStore.addAppliedPromotionProductToReceipt(productName, maxPromotionQuantity);
+            this.#convenienceStore.addNotAppliedPromotionProductToReceipt(productName, quantityToPayFullPrice);
+            const bonusCount = this.#convenienceStore.getBonusProductCount(productName, maxPromotionQuantity);
+            this.#convenienceStore.addBonusProductToReceipt(productName, bonusCount);
           } else {
-            this.#skipWithinPromotionWithExtra(productName, purchaseQuantity, extraQuantity);
+            this.#convenienceStore.decrementPromotionProductQuantity(true, productName, purchaseQuantity - quantityToPayFullPrice);
+            this.#convenienceStore.addAppliedPromotionProductToReceipt(productName, maxPromotionQuantity);
+            const bonusCount = this.#convenienceStore.getBonusProductCount(productName, maxPromotionQuantity);
+            this.#convenienceStore.addBonusProductToReceipt(productName, bonusCount);
           }
         }
       );
     } else {
-      this.#applyWithinPromotionWithoutExtra(productName, purchaseQuantity, maxPromotionQuantity);
+      const extraQuantity = maxPromotionQuantity - purchaseQuantity;
+      if (extraQuantity > 0) {
+        await this.#retryInputWithMessage(
+          () => this.#outputView.printGuidePromotionProductInfo(ProductPromotionInfoDTO.of(productName, extraQuantity)),
+          () => this.#inputView.getInputYesOrNo(),
+          (userDecision) => {
+            if (userDecision) {
+              const totalQuantity = purchaseQuantity + extraQuantity;
+              this.#convenienceStore.decrementPromotionProductQuantity(false, productName, totalQuantity);
+              this.#convenienceStore.addAppliedPromotionProductToReceipt(productName, totalQuantity);
+              const bonusCount = this.#convenienceStore.getBonusProductCount(productName, totalQuantity);
+              this.#convenienceStore.addBonusProductToReceipt(productName, bonusCount);
+            } else {
+              this.#convenienceStore.decrementPromotionProductQuantity(false, productName, purchaseQuantity);
+              const promotionSetSize = this.#convenienceStore.getPromotionSetSize(productName);
+              const quantityInPromotion = purchaseQuantity + extraQuantity - promotionSetSize;
+              const quantityNotInPromotion = purchaseQuantity % promotionSetSize;
+
+              this.#convenienceStore.addAppliedPromotionProductToReceipt(productName, quantityInPromotion);
+              this.#convenienceStore.addNotAppliedPromotionProductToReceipt(productName, quantityNotInPromotion);
+              const bonusCount = this.#convenienceStore.getBonusProductCount(productName, quantityInPromotion);
+              this.#convenienceStore.addBonusProductToReceipt(productName, bonusCount);
+            }
+          }
+        );
+      } else {
+        this.#convenienceStore.decrementPromotionProductQuantity(false, productName, purchaseQuantity);
+        this.#convenienceStore.addAppliedPromotionProductToReceipt(productName, maxPromotionQuantity);
+        this.#convenienceStore.addNotAppliedPromotionProductToReceipt(productName, purchaseQuantity - maxPromotionQuantity);
+        const bonusCount = this.#convenienceStore.getBonusProductCount(productName, maxPromotionQuantity);
+        this.#convenienceStore.addBonusProductToReceipt(productName, bonusCount);
+      }
     }
-  }
-
-  #applyExceedPromotion(productName, maxPromotionQuantity, purchaseQuantity, quantityToPayFullPrice) {
-    this.#convenienceStore.decrementPromotionProductQuantity(true, productName, purchaseQuantity);
-    this.#convenienceStore.addAppliedPromotionProductToReceipt(productName, maxPromotionQuantity);
-    this.#convenienceStore.addNotAppliedPromotionProductToReceipt(productName, quantityToPayFullPrice);
-    this.#addBonusToReceipt(productName, maxPromotionQuantity);
-  }
-
-  #skipExceedPromotion(productName, maxPromotionQuantity, purchaseQuantity, quantityToPayFullPrice) {
-    this.#convenienceStore.decrementPromotionProductQuantity(true, productName, purchaseQuantity - quantityToPayFullPrice);
-    this.#convenienceStore.addAppliedPromotionProductToReceipt(productName, maxPromotionQuantity);
-    this.#addBonusToReceipt(productName, maxPromotionQuantity);
-  }
-
-  #applyWithinPromotionWithExtra(productName, quantity, extraQuantity) {
-    const totalQuantity = quantity + extraQuantity;
-    this.#convenienceStore.decrementPromotionProductQuantity(false, productName, totalQuantity);
-    this.#convenienceStore.addAppliedPromotionProductToReceipt(productName, totalQuantity);
-    this.#addBonusToReceipt(productName, totalQuantity);
-  }
-
-  #skipWithinPromotionWithExtra(productName, quantity, extraQuantity) {
-    this.#convenienceStore.decrementPromotionProductQuantity(false, productName, quantity);
-    const promotionSetSize = this.#convenienceStore.getPromotionSetSize(productName);
-    const quantityInPromotion = quantity + extraQuantity - promotionSetSize;
-    const quantityNotInPromotion = quantity % promotionSetSize;
-
-    this.#convenienceStore.addAppliedPromotionProductToReceipt(productName, quantityInPromotion);
-    this.#convenienceStore.addNotAppliedPromotionProductToReceipt(productName, quantityNotInPromotion);
-    this.#addBonusToReceipt(productName, quantityInPromotion);
-  }
-
-  #applyWithinPromotionWithoutExtra(productName, quantity, maxPromotionQuantity) {
-    this.#convenienceStore.decrementPromotionProductQuantity(false, productName, quantity);
-    this.#convenienceStore.addAppliedPromotionProductToReceipt(productName, maxPromotionQuantity);
-    this.#convenienceStore.addNotAppliedPromotionProductToReceipt(productName, quantity - maxPromotionQuantity);
-    this.#addBonusToReceipt(productName, maxPromotionQuantity);
-  }
-
-  #addBonusToReceipt(productName, quantity) {
-    const bonusCount = this.#convenienceStore.getBonusProductCount(productName, quantity);
-    this.#convenienceStore.addBonusProductToReceipt(productName, bonusCount);
   }
 
   async #retryInputUntilSuccess(inputFunction, taskFunction) {
