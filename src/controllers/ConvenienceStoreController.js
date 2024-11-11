@@ -135,57 +135,51 @@ class ConvenienceStoreController {
   }
 
   // 프로모션 재고 초과 시 처리
-  async #handleExceedPromotionStock(
-    productName,
-    purchaseQuantity,
-    maxPromotionQuantity,
-  ) {
-    const quantityToPayFullPrice = purchaseQuantity - maxPromotionQuantity;
-    const productPromotionInfoDTO = ProductPromotionDTO.of(
-      productName,
-      quantityToPayFullPrice,
-    );
+  async #handleExceedPromotionStock(productName, purchaseQuantity, maxPromotionQuantity) {
+    const { quantityToPayFullPrice, productPromotionInfoDTO } =
+      this.#prepareProductPromotionInfo(productName, purchaseQuantity, maxPromotionQuantity);
 
     await this.#retryInputWithMessage(
-      () =>
-        this.#outputView.printExceedPromotionProductInfo(
-          productPromotionInfoDTO,
-        ),
+      () => this.#outputView.printExceedPromotionProductInfo(productPromotionInfoDTO),
       () => this.#inputView.getInputYesOrNo(),
-      (userDecision) => {
-        if (userDecision) {
-          this.#applyFullPromotionPurchase(
-            productName,
-            purchaseQuantity,
-            quantityToPayFullPrice,
-            maxPromotionQuantity,
-          );
-          this.#addBonusToReceipt(productName, maxPromotionQuantity);
-        }
-      },
+      (userDecision) => this.#processUserDecisionForPromotion(
+        userDecision,
+        productName,
+        purchaseQuantity,
+        quantityToPayFullPrice,
+        maxPromotionQuantity
+      )
     );
   }
 
-  // 프로모션 재고 내에서 처리
-  async #handlePromotionWithinLimits(
-    productName,
-    purchaseQuantity,
-    maxPromotionQuantity,
-  ) {
-    const bonusQuantity = maxPromotionQuantity - purchaseQuantity;
+  #prepareProductPromotionInfo(productName, purchaseQuantity, maxPromotionQuantity) {
+    const quantityToPayFullPrice = purchaseQuantity - maxPromotionQuantity;
+    const productPromotionInfoDTO = ProductPromotionDTO.of(productName, quantityToPayFullPrice);
+    return { quantityToPayFullPrice, productPromotionInfoDTO };
+  }
 
+  #processUserDecisionForPromotion(userDecision, productName, purchaseQuantity, quantityToPayFullPrice, maxPromotionQuantity) {
+    if (userDecision) {
+      this.#applyFullPromotionPurchase(productName, purchaseQuantity, quantityToPayFullPrice, maxPromotionQuantity);
+      this.#addBonusToReceipt(productName, maxPromotionQuantity);
+    }
+  }
+
+  // 프로모션 재고 내에서 처리
+  async #handlePromotionWithinLimits(productName, purchaseQuantity, maxPromotionQuantity) {
+    const bonusQuantity = this.#calculateBonusQuantity(maxPromotionQuantity, purchaseQuantity);
+    await this.#processPromotionApplicationDecision(productName, purchaseQuantity, maxPromotionQuantity, bonusQuantity);
+  }
+
+  #calculateBonusQuantity(maxPromotionQuantity, purchaseQuantity) {
+    return maxPromotionQuantity - purchaseQuantity;
+  }
+
+  async #processPromotionApplicationDecision(productName, purchaseQuantity, maxPromotionQuantity, bonusQuantity) {
     if (maxPromotionQuantity > purchaseQuantity) {
-      await this.#offerFullOrPartialPromotion(
-        productName,
-        purchaseQuantity,
-        bonusQuantity,
-      );
+      await this.#offerFullOrPartialPromotion(productName, purchaseQuantity, bonusQuantity);
     } else {
-      this.#applyDirectPromotion(
-        productName,
-        purchaseQuantity,
-        maxPromotionQuantity,
-      );
+      this.#applyDirectPromotion(productName, purchaseQuantity, maxPromotionQuantity);
     }
   }
 

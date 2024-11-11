@@ -87,18 +87,26 @@ class ConvenienceStore {
       productStockToSell.getProductName(),
     );
 
-    if (this.#isPromotionOngoing(promotion)) {
-      const promotionProductCount = this.#getPromotionProductCount(
-        productStockToSell.getProductName(),
-      );
-      return this.#calculateMaxPromotionQuantity(
-        promotion,
-        productStockToSell.getQuantity(),
-        promotionProductCount,
-      );
+    if (this.#isOngoingPromotionForProduct(promotion, productStockToSell)) {
+      return this.#getValidPromotionQuantity(promotion, productStockToSell);
     }
 
     return 0;
+  }
+
+  #isOngoingPromotionForProduct(promotion) {
+    return promotion && this.#isPromotionOngoing(promotion);
+  }
+
+  #getValidPromotionQuantity(promotion, productStockToSell) {
+    const promotionProductCount = this.#getPromotionProductCount(
+      productStockToSell.getProductName(),
+    );
+    return this.#calculateMaxPromotionQuantity(
+      promotion,
+      productStockToSell.getQuantity(),
+      promotionProductCount,
+    );
   }
 
   #isPromotionOngoing(promotion) {
@@ -124,17 +132,32 @@ class ConvenienceStore {
   }
 
   decrementPromotionProductQuantity(isExceed, productName, decrementQuantity) {
-    const promotionStock = this.#productStockMap.get(productName).promotion;
-    const noPromotionStock = this.#productStockMap.get(productName).noPromotion;
+    const { promotionStock, noPromotionStock } = this.#getProductStocks(productName);
 
     if (isExceed) {
-      const quantity = this.#getQuantity(promotionStock);
-      promotionStock.decrementQuantity(quantity);
-      if (noPromotionStock) {
-        noPromotionStock.decrementQuantity(decrementQuantity - quantity);
-      }
+      this.#handleExceedDecrement(promotionStock, noPromotionStock, decrementQuantity);
     } else {
-      promotionStock.decrementQuantity(decrementQuantity);
+      this.#decrementPromotionStock(promotionStock, decrementQuantity);
+    }
+  }
+
+  #getProductStocks(productName) {
+    return {
+      promotionStock: this.#productStockMap.get(productName).promotion,
+      noPromotionStock: this.#productStockMap.get(productName).noPromotion,
+    };
+  }
+
+  #decrementPromotionStock(promotionStock, decrementQuantity) {
+    promotionStock.decrementQuantity(decrementQuantity);
+  }
+
+  #handleExceedDecrement(promotionStock, noPromotionStock, decrementQuantity) {
+    const quantity = this.#getQuantity(promotionStock);
+    promotionStock.decrementQuantity(quantity);
+
+    if (noPromotionStock) {
+      noPromotionStock.decrementQuantity(decrementQuantity - quantity);
     }
   }
 

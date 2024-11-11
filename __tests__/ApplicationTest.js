@@ -247,13 +247,19 @@ describe('프로모션 적용에 따른 멤버십 할인 테스트', () => {
       description:
         '프로모션 초과하여 정가 결제 구매 후 멤버십 할인 받는지 확인',
       inputs: ['[콜라-20]', 'Y', 'Y', 'N'],
-      expectedIgnoringWhiteSpaces: ['멤버십할인-3300'],
+      expectedIgnoringWhiteSpaces: ['멤버십할인-3,300'],
     },
     {
       description:
         '프로모션 초과하여 정가 결제 하지 않고 멤버십 할인 받는지 확인',
       inputs: ['[콜라-20]', 'N', 'Y', 'N'],
       expectedIgnoringWhiteSpaces: ['멤버십할인-0'],
+    },
+    {
+      description:
+        '멤버십 할인 최대치가 8000인지 확인',
+      inputs: ['[정식도시락-8],[비타민워터-5],[에너지바-5]', 'Y', 'N'],
+      expectedIgnoringWhiteSpaces: ['멤버십할인-8,000'],
     },
   ])('$description', async ({ inputs, expected }) => {
     await run({
