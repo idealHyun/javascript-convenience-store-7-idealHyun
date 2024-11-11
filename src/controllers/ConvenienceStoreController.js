@@ -84,10 +84,10 @@ class ConvenienceStoreController {
       return ;
     }
 
-    // 구매 수량이 프로모션 재고를 초과하는지
-    const isExceed = this.#convenienceStore.isExceedPromotionStock(productStockToSell);
+    // 구매 수량이 프로모션 재고로 충분한지 여부
+    const isPromotionStockSufficient = this.#convenienceStore.isExceedPromotionStock(productStockToSell);
 
-    if (isExceed) {
+    if (isPromotionStockSufficient) {
       const quantityToPayFullPrice = purchaseQuantity - maxPromotionQuantity;
       const productPromotionInfoDTO = ProductPromotionInfoDTO.of(productName, quantityToPayFullPrice);
 
@@ -111,7 +111,7 @@ class ConvenienceStoreController {
       );
     } else {
       const extraQuantity = maxPromotionQuantity - purchaseQuantity;
-      if (extraQuantity > 0) {
+      if (maxPromotionQuantity > purchaseQuantity) {
         await this.#retryInputWithMessage(
           () => this.#outputView.printGuidePromotionProductInfo(ProductPromotionInfoDTO.of(productName, extraQuantity)),
           () => this.#inputView.getInputYesOrNo(),

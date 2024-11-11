@@ -70,7 +70,7 @@ class ConvenienceStore {
 
   isExceedPromotionStock(productStock) {
     const promotion = this.#productStockMap.get(productStock.getProductName()).promotion;
-    return promotion ? productStock.getQuantity() > promotion.getQuantity() : false;
+    return promotion ? productStock.getQuantity() >= promotion.getQuantity() : false;
   }
 
   getMaxPromotionQuantity(productStockToSell) {
@@ -89,7 +89,9 @@ class ConvenienceStore {
     if (isExceed) {
       const quantity = this.#getQuantity(promotionStock);
       promotionStock.decrementQuantity(quantity);
-      noPromotionStock.decrementQuantity(decrementQuantity - quantity);
+      if(noPromotionStock){
+        noPromotionStock.decrementQuantity(decrementQuantity - quantity);
+      }
     } else {
       promotionStock.decrementQuantity(decrementQuantity);
     }
