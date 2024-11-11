@@ -12,18 +12,12 @@ describe('Parser 테스트', () => {
     const parsedData = parser.parsePromotionsData(promotionData);
 
     const expectedData = new Map([
-      [
-        '탄산2+1',
-        new Promotion('탄산2+1', 2, 1, '2024-01-01', '2024-12-31')
-      ],
+      ['탄산2+1', new Promotion('탄산2+1', 2, 1, '2024-01-01', '2024-12-31')],
       [
         'MD추천상품',
-        new Promotion('MD추천상품', 1, 1, '2024-01-01', '2024-12-31')
+        new Promotion('MD추천상품', 1, 1, '2024-01-01', '2024-12-31'),
       ],
-      [
-        '반짝할인',
-        new Promotion('반짝할인', 1, 1, '2024-11-01', '2024-11-30')
-      ]
+      ['반짝할인', new Promotion('반짝할인', 1, 1, '2024-11-01', '2024-11-30')],
     ]);
 
     expect(parsedData).toEqual(expectedData);

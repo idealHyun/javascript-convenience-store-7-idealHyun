@@ -5,7 +5,13 @@ class ProductDTO {
   #promotionProductQuantity;
   #promotionName;
 
-  constructor(productName, price, productQuantity, promotionProductQuantity, promotionName) {
+  constructor(
+    productName,
+    price,
+    productQuantity,
+    promotionProductQuantity,
+    promotionName,
+  ) {
     this.#productName = productName;
     this.#price = price;
     this.#productQuantity = productQuantity;

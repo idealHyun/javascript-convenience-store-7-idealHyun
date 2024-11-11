@@ -159,52 +159,65 @@ describe('편의점', () => {
 describe('상품 구매에 따른 안내 문구 테스트', () => {
   test.each([
     {
-      description : '프로모션 적용되었으므로 안내 없음',
+      description: '프로모션 적용되었으므로 안내 없음',
       inputs: ['[콜라-6]', 'N', 'N'],
     },
     {
-      description : '이름 중복 작성시 프로모션 적용',
+      description: '이름 중복 작성시 프로모션 적용',
       inputs: ['[콜라-1],[콜라-1],[콜라-1]', 'N', 'N'],
     },
     {
-      description : '프로모션 적용 조건 안되므로 안내 없음',
+      description: '프로모션 적용 조건 안되므로 안내 없음',
       inputs: ['[콜라-1]', 'N', 'N'],
     },
     {
-      description : '프로모션 적용 하고 남은 개수는 조건 안되므로 안내 없음',
+      description: '프로모션 적용 하고 남은 개수는 조건 안되므로 안내 없음',
       inputs: ['[콜라-4]', 'N', 'N'],
     },
     {
-      description : '프로모션 안내 메세지',
+      description: '프로모션 안내 메세지',
       inputs: ['[콜라-2]', 'N', 'N', 'N'],
-      expected: ['현재 콜라은(는) 1개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)']
+      expected: [
+        '현재 콜라은(는) 1개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)',
+      ],
     },
     {
-      description : '프로모션 적용하고 남은 개수 프로모션 안내 메세지',
+      description: '프로모션 적용하고 남은 개수 프로모션 안내 메세지',
       inputs: ['[콜라-5]', 'N', 'N', 'N'],
-      expected: ['현재 콜라은(는) 1개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)']
+      expected: [
+        '현재 콜라은(는) 1개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)',
+      ],
     },
     {
-      description : '프로모션 재고는 충분하지만 프로모션 적용을 하지 못해 정가 결제 메세지',
+      description:
+        '프로모션 재고는 충분하지만 프로모션 적용을 하지 못해 정가 결제 메세지',
       inputs: ['[콜라-10]', 'Y', 'N', 'N'],
-      expected: ['현재 콜라 1개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)']
+      expected: [
+        '현재 콜라 1개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)',
+      ],
     },
     {
-      description : '프로모션 재고 부족으로 인한 정가 결제 메세지',
+      description: '프로모션 재고 부족으로 인한 정가 결제 메세지',
       inputs: ['[컵라면-10]', 'Y', 'N', 'N'],
-      expected: ['현재 컵라면 10개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)']
+      expected: [
+        '현재 컵라면 10개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)',
+      ],
     },
     {
-      description : '이름 중복 작성으로 프로모션 재고 부족으로 인한 정가 결제 메세지',
+      description:
+        '이름 중복 작성으로 프로모션 재고 부족으로 인한 정가 결제 메세지',
       inputs: ['[컵라면-5],[컵라면-5]', 'Y', 'N', 'N'],
-      expected: ['현재 컵라면 10개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)']
+      expected: [
+        '현재 컵라면 10개는 프로모션 할인이 적용되지 않습니다. 그래도 구매하시겠습니까? (Y/N)',
+      ],
     },
     {
-      description : '이름 중복 작성시 프로모션 안내 메세지',
+      description: '이름 중복 작성시 프로모션 안내 메세지',
       inputs: ['[콜라-1],[콜라-1]', 'Y', 'N', 'N'],
-      expected: ['현재 콜라은(는) 1개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)']
+      expected: [
+        '현재 콜라은(는) 1개를 무료로 더 받을 수 있습니다. 추가하시겠습니까? (Y/N)',
+      ],
     },
-
   ])('$description', async ({ inputs, expected }) => {
     await run({
       inputs,
@@ -216,29 +229,31 @@ describe('상품 구매에 따른 안내 문구 테스트', () => {
 describe('프로모션 적용에 따른 멤버십 할인 테스트', () => {
   test.each([
     {
-      description : '프로모션 혜택 받고 멤버십 할인 받는지 확인',
+      description: '프로모션 혜택 받고 멤버십 할인 받는지 확인',
       inputs: ['[콜라-2]', 'Y', 'Y', 'N'],
-      expectedIgnoringWhiteSpaces: ['멤버십할인-0']
+      expectedIgnoringWhiteSpaces: ['멤버십할인-0'],
     },
     {
-      description : '프로모션 혜택 안 받고 멤버십 할인 받는지 확인',
+      description: '프로모션 혜택 안 받고 멤버십 할인 받는지 확인',
       inputs: ['[콜라-2]', 'N', 'Y', 'N'],
-      expectedIgnoringWhiteSpaces: ['멤버십할인-600']
+      expectedIgnoringWhiteSpaces: ['멤버십할인-600'],
     },
     {
-      description : '프로모션 받은 후 멤버십 할인 받는지 확인',
+      description: '프로모션 받은 후 멤버십 할인 받는지 확인',
       inputs: ['[콜라-3]', 'Y', 'N'],
-      expectedIgnoringWhiteSpaces: ['멤버십할인-0']
+      expectedIgnoringWhiteSpaces: ['멤버십할인-0'],
     },
     {
-      description : '프로모션 초과하여 정가 결제 구매 후 멤버십 할인 받는지 확인',
-      inputs: ['[콜라-20]','Y', 'Y', 'N'],
-      expectedIgnoringWhiteSpaces: ['멤버십할인-3300']
+      description:
+        '프로모션 초과하여 정가 결제 구매 후 멤버십 할인 받는지 확인',
+      inputs: ['[콜라-20]', 'Y', 'Y', 'N'],
+      expectedIgnoringWhiteSpaces: ['멤버십할인-3300'],
     },
     {
-      description : '프로모션 초과하여 정가 결제 하지 않고 멤버십 할인 받는지 확인',
-      inputs: ['[콜라-20]','N', 'Y', 'N'],
-      expectedIgnoringWhiteSpaces: ['멤버십할인-0']
+      description:
+        '프로모션 초과하여 정가 결제 하지 않고 멤버십 할인 받는지 확인',
+      inputs: ['[콜라-20]', 'N', 'Y', 'N'],
+      expectedIgnoringWhiteSpaces: ['멤버십할인-0'],
     },
   ])('$description', async ({ inputs, expected }) => {
     await run({

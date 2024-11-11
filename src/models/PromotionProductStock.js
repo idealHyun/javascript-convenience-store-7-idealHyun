@@ -10,7 +10,7 @@ class PromotionProductStock extends ProductStock {
     this.#promotionName = promotionName;
   }
 
-  getPromotionName(){
+  getPromotionName() {
     return this.#promotionName;
   }
 

@@ -16,7 +16,7 @@ class ProductStock {
     return this.#quantity;
   }
 
-  getProductName(){
+  getProductName() {
     return this.#productName;
   }
 

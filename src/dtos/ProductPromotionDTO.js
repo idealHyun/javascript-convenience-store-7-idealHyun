@@ -2,13 +2,13 @@ class ProductPromotionDTO {
   #productName;
   #productQuantity;
 
-  constructor(productName,productQuantity) {
+  constructor(productName, productQuantity) {
     this.#productName = productName;
     this.#productQuantity = productQuantity;
   }
 
-  static of(productName,productQuantity) {
-    return new ProductPromotionDTO(productName,productQuantity);
+  static of(productName, productQuantity) {
+    return new ProductPromotionDTO(productName, productQuantity);
   }
 
   getProductName() {

@@ -1,5 +1,11 @@
 class TotalDTO {
-  constructor(totalQuantity, totalAmount, promotionDiscount, membershipDiscount, finalAmount) {
+  constructor(
+    totalQuantity,
+    totalAmount,
+    promotionDiscount,
+    membershipDiscount,
+    finalAmount,
+  ) {
     this.totalQuantity = totalQuantity;
     this.totalAmount = totalAmount;
     this.promotionDiscount = promotionDiscount;
