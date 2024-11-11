@@ -161,9 +161,9 @@ class ConvenienceStore {
 
   #createBonusProductDTOs() {
     const bonusProductList = this.#receipt.getBonusProduct();
-    return Object.entries(bonusProductList).map(([name, { quantity }]) =>
-      new BonusProductDTO(name, quantity)
-    );
+    return Object.entries(bonusProductList)
+      .filter(([_, { quantity }]) => quantity > 0)
+      .map(([name, { quantity }]) => new BonusProductDTO(name, quantity));
   }
 
   #getPromotionForProductName(productName) {
