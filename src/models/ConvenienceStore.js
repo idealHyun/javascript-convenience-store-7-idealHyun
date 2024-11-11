@@ -154,9 +154,11 @@ class ConvenienceStore {
 
   #createPurchasedProductDTOs() {
     const purchasedProductList = this.#receipt.getTotalProductsQuantity();
-    return Object.entries(purchasedProductList).map(([name, { quantity, price }]) =>
-      new PurchasedProductDTO(name, quantity, price * quantity)
-    );
+    return Object.entries(purchasedProductList)
+      .filter(([_, { quantity }]) => quantity > 0)
+      .map(([name, { quantity, price }]) =>
+        new PurchasedProductDTO(name, quantity, price * quantity)
+      );
   }
 
   #createBonusProductDTOs() {
