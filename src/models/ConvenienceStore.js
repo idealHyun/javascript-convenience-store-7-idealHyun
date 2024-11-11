@@ -8,7 +8,7 @@ import { STORE_CONFIG } from '../constants/storeConfig.js';
 import Receipt from './Receipt.js';
 import PurchasedProductDTO from '../dtos/PurchasedProductDTO.js';
 import BonusProductDTO from '../dtos/BonusProductDTO.js';
-import TotalInfoDTO from '../dtos/TotalInfoDTO.js';
+import TotalDTO from '../dtos/TotalDTO.js';
 import ReceiptDTO from '../dtos/ReceiptDTO.js';
 
 class ConvenienceStore {
@@ -72,12 +72,13 @@ class ConvenienceStore {
     return !!this.#productStockMap.get(productName).promotion;
   }
 
-  isExceedPromotionStock(productStock) {
+  isExceedPromotionStockQuantity(productStockToSell) {
     const promotion = this.#productStockMap.get(
-      productStock.getProductName(),
+      productStockToSell.getProductName(),
     ).promotion;
+
     return promotion
-      ? productStock.getQuantity() >= promotion.getQuantity()
+      ? productStockToSell.getQuantity() >= promotion.getQuantity()
       : false;
   }
 
@@ -178,7 +179,7 @@ class ConvenienceStore {
     return new ReceiptDTO(
       this.#createPurchasedProductDTOs(),
       this.#createBonusProductDTOs(),
-      new TotalInfoDTO(
+      new TotalDTO(
         this.#receipt.getTotalQuantity(),
         ...Object.values(this.#calculateTotalAmounts(applyDiscount)),
       ),

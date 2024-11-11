@@ -1,5 +1,5 @@
-import ProductInfoDTO from '../dtos/ProductInfoDTO.js';
-import ProductPromotionInfoDTO from '../dtos/ProductPromotionInfoDTO.js';
+import ProductDTO from '../dtos/ProductDTO.js';
+import ProductPromotionDTO from '../dtos/ProductPromotionDTO.js';
 
 class ConvenienceStoreController {
   #convenienceStore;
@@ -49,7 +49,7 @@ class ConvenienceStoreController {
     );
   }
 
-  // 재구매 여부를 처리하는 메서드
+  // 재구매 여부를 처리
   async #handleRepurchase() {
     let isRepurchase = false;
     await this.#retryInputUntilSuccess(
@@ -68,7 +68,6 @@ class ConvenienceStoreController {
   }
 
   async #processAllProductStocksToSell(productStocksToSell) {
-    // 영수증 클래스 생성
     this.#convenienceStore.createReceipt();
 
     for (const productStockToSell of productStocksToSell) {
@@ -91,7 +90,7 @@ class ConvenienceStoreController {
 
   #printStoreStorage(productList) {
     productList.forEach((product) => {
-      const productInfoDTO = ProductInfoDTO.of(
+      const productInfoDTO = ProductDTO.of(
         this.#convenienceStore.getProductInfo(product),
       );
       this.#outputView.printProductInfo(productInfoDTO);
@@ -101,64 +100,21 @@ class ConvenienceStoreController {
   async #processToSell(productStockToSell) {
     const productName = productStockToSell.getProductName();
     const purchaseQuantity = productStockToSell.getQuantity();
+    const maxPromotionQuantity =
+      this.#getMaxPromotionQuantity(productStockToSell);
 
-    if (!this.#isPromotionAvailable(productName)) {
-      this.#processNonPromotionProduct(productName, purchaseQuantity);
+    if (this.#isNoPromotionAvailable(productName, purchaseQuantity)) {
       return;
     }
 
-    const maxPromotionQuantity =
-      this.#getMaxPromotionQuantity(productStockToSell);
-    await this.#processPromotionProduct(
-      productStockToSell,
-      productName,
-      purchaseQuantity,
-      maxPromotionQuantity,
-    );
-  }
-
-  // 프로모션 여부 확인
-  #isPromotionAvailable(productName) {
-    return this.#convenienceStore.isHavePromotion(productName);
-  }
-
-  // 프로모션이 없는 경우 처리
-  #processNonPromotionProduct(productName, purchaseQuantity) {
-    this.#convenienceStore.decrementProductQuantity(
-      productName,
-      purchaseQuantity,
-    );
-    this.#convenienceStore.addNotAppliedPromotionProductToReceipt(
-      productName,
-      purchaseQuantity,
-    );
-  }
-
-  // 최대 프로모션 수량을 가져오는 메서드
-  #getMaxPromotionQuantity(productStockToSell) {
-    return this.#convenienceStore.getMaxPromotionQuantity(productStockToSell);
-  }
-
-  // 프로모션이 있는 경우 처리
-  async #processPromotionProduct(
-    productStockToSell,
-    productName,
-    purchaseQuantity,
-    maxPromotionQuantity,
-  ) {
-    const isPromotionStockSufficient =
-      this.#isPromotionStockSufficient(productStockToSell);
-
-    if (isPromotionStockSufficient) {
-      await this.#handleSufficientPromotionStock(
-        productStockToSell,
+    if (this.checkPromotionStockQuantityExceeded(productStockToSell)) {
+      await this.#handleExceedPromotionStock(
         productName,
         purchaseQuantity,
         maxPromotionQuantity,
       );
     } else {
-      await this.#handleInsufficientPromotionStock(
-        productStockToSell,
+      await this.#handlePromotionWithinLimits(
         productName,
         purchaseQuantity,
         maxPromotionQuantity,
@@ -166,20 +122,26 @@ class ConvenienceStoreController {
     }
   }
 
-  // 프로모션 재고가 충분한지 확인
-  #isPromotionStockSufficient(productStockToSell) {
-    return this.#convenienceStore.isExceedPromotionStock(productStockToSell);
+  // 프로모션이 없거나 프로모션 재고가 없을 경우 처리
+  #isNoPromotionAvailable(productName, purchaseQuantity) {
+    if (
+      !this.#isPromotionAvailable(productName) ||
+      this.#convenienceStore.getPromotionProductQuantity(productName) === 0
+    ) {
+      this.#processNoPromotionProduct(productName, purchaseQuantity);
+      return true;
+    }
+    return false;
   }
 
-  // 프로모션 재고가 충분할 때의 처리
-  async #handleSufficientPromotionStock(
-    productStockToSell,
+  // 프로모션 재고 초과 시 처리
+  async #handleExceedPromotionStock(
     productName,
     purchaseQuantity,
     maxPromotionQuantity,
   ) {
     const quantityToPayFullPrice = purchaseQuantity - maxPromotionQuantity;
-    const productPromotionInfoDTO = ProductPromotionInfoDTO.of(
+    const productPromotionInfoDTO = ProductPromotionDTO.of(
       productName,
       quantityToPayFullPrice,
     );
@@ -190,39 +152,33 @@ class ConvenienceStoreController {
           productPromotionInfoDTO,
         ),
       () => this.#inputView.getInputYesOrNo(),
-      (userDecision) =>
-        this.#applyPromotionWithUserDecision(
-          userDecision,
-          productName,
-          purchaseQuantity,
-          quantityToPayFullPrice,
-          maxPromotionQuantity,
-        ),
+      (userDecision) => {
+        if (userDecision) {
+          this.#applyFullPromotionPurchase(
+            productName,
+            purchaseQuantity,
+            quantityToPayFullPrice,
+            maxPromotionQuantity,
+          );
+          this.#addBonusToReceipt(productName, maxPromotionQuantity);
+        }
+      },
     );
   }
 
-  // 프로모션 재고가 부족할 때의 처리
-  async #handleInsufficientPromotionStock(
-    productStockToSell,
+  // 프로모션 재고 내에서 처리
+  async #handlePromotionWithinLimits(
     productName,
     purchaseQuantity,
     maxPromotionQuantity,
   ) {
-    const extraQuantity = maxPromotionQuantity - purchaseQuantity;
+    const bonusQuantity = maxPromotionQuantity - purchaseQuantity;
+
     if (maxPromotionQuantity > purchaseQuantity) {
-      await this.#retryInputWithMessage(
-        () =>
-          this.#outputView.printGuidePromotionProductInfo(
-            ProductPromotionInfoDTO.of(productName, extraQuantity),
-          ),
-        () => this.#inputView.getInputYesOrNo(),
-        (userDecision) =>
-          this.#applyPromotionWithExtraQuantityDecision(
-            userDecision,
-            productName,
-            purchaseQuantity,
-            extraQuantity,
-          ),
+      await this.#offerFullOrPartialPromotion(
+        productName,
+        purchaseQuantity,
+        bonusQuantity,
       );
     } else {
       this.#applyDirectPromotion(
@@ -233,33 +189,61 @@ class ConvenienceStoreController {
     }
   }
 
-  // 사용자 결정에 따른 프로모션 적용
-  #applyPromotionWithUserDecision(
-    userDecision,
+  // 사용자가 전체 혹은 일부 프로모션 적용을 선택할 수 있도록 처리
+  async #offerFullOrPartialPromotion(
     productName,
     purchaseQuantity,
-    quantityToPayFullPrice,
-    maxPromotionQuantity,
+    bonusQuantity,
   ) {
-    if (userDecision) {
-      this.#applyFullPromotionPurchase(
-        productName,
-        purchaseQuantity,
-        quantityToPayFullPrice,
-        maxPromotionQuantity,
-      );
-    } else {
-      this.#applyPartialPromotionPurchase(
-        productName,
-        purchaseQuantity,
-        quantityToPayFullPrice,
-        maxPromotionQuantity,
-      );
-    }
-    this.#addBonusToReceipt(productName, maxPromotionQuantity);
+    await this.#retryInputWithMessage(
+      () =>
+        this.#outputView.printGuidePromotionProductInfo(
+          ProductPromotionDTO.of(productName, bonusQuantity),
+        ),
+      () => this.#inputView.getInputYesOrNo(),
+      (userDecision) => {
+        if (userDecision) {
+          this.#applyFullPromotion(
+            productName,
+            purchaseQuantity,
+            bonusQuantity,
+          );
+        } else {
+          this.#applyPartialPromotion(
+            productName,
+            purchaseQuantity,
+            bonusQuantity,
+          );
+        }
+      },
+    );
   }
 
-  // 사용자가 전체 프로모션 수량을 구매한 경우의 처리
+  #isPromotionAvailable(productName) {
+    return this.#convenienceStore.isHavePromotion(productName);
+  }
+
+  #processNoPromotionProduct(productName, purchaseQuantity) {
+    this.#convenienceStore.decrementProductQuantity(
+      productName,
+      purchaseQuantity,
+    );
+    this.#convenienceStore.addNotAppliedPromotionProductToReceipt(
+      productName,
+      purchaseQuantity,
+    );
+  }
+
+  #getMaxPromotionQuantity(productStockToSell) {
+    return this.#convenienceStore.getMaxPromotionQuantity(productStockToSell);
+  }
+
+  checkPromotionStockQuantityExceeded(productStockToSell) {
+    return this.#convenienceStore.isExceedPromotionStockQuantity(
+      productStockToSell,
+    );
+  }
+
   #applyFullPromotionPurchase(
     productName,
     purchaseQuantity,
@@ -281,39 +265,7 @@ class ConvenienceStoreController {
     );
   }
 
-  // 사용자가 일부 프로모션 수량만 구매한 경우의 처리
-  #applyPartialPromotionPurchase(
-    productName,
-    purchaseQuantity,
-    quantityToPayFullPrice,
-    maxPromotionQuantity,
-  ) {
-    this.#convenienceStore.decrementPromotionProductQuantity(
-      true,
-      productName,
-      purchaseQuantity - quantityToPayFullPrice,
-    );
-    this.#convenienceStore.addAppliedPromotionProductToReceipt(
-      productName,
-      maxPromotionQuantity,
-    );
-  }
-
-  // 프로모션 부족 시 추가 수량에 대한 사용자 결정 처리
-  #applyPromotionWithExtraQuantityDecision(
-    userDecision,
-    productName,
-    purchaseQuantity,
-    extraQuantity,
-  ) {
-    if (userDecision) {
-      this.#applyFullPromotion(productName, purchaseQuantity, extraQuantity);
-    } else {
-      this.#applyPartialPromotion(productName, purchaseQuantity, extraQuantity);
-    }
-  }
-
-  // 사용자가 추가 수량을 구매할 경우의 프로모션 처리
+  // 구매 개수가 프로모션 적요이 가능하여 사용자의 선택으로 적용하였을 경우
   #applyFullPromotion(productName, purchaseQuantity, extraQuantity) {
     const totalQuantity = purchaseQuantity + extraQuantity;
     this.#convenienceStore.decrementPromotionProductQuantity(
@@ -328,7 +280,7 @@ class ConvenienceStoreController {
     this.#addBonusToReceipt(productName, totalQuantity);
   }
 
-  // 사용자가 추가 수량을 구매하지 않을 경우의 프로모션 처리
+  // 구매 개수가 프로모션을 적용시킬 수 있었지만 사용자의 선택으로 적용하지 않았을 경우
   #applyPartialPromotion(productName, purchaseQuantity, extraQuantity) {
     const promotionSetSize =
       this.#convenienceStore.getPromotionSetSize(productName);
@@ -352,7 +304,7 @@ class ConvenienceStoreController {
     this.#addBonusToReceipt(productName, quantityInPromotion);
   }
 
-  // 프로모션 적용 직접 처리
+  // 구매 개수가 프로모션을 적용한 개수일 때 처리
   #applyDirectPromotion(productName, purchaseQuantity, maxPromotionQuantity) {
     this.#convenienceStore.decrementPromotionProductQuantity(
       false,
@@ -370,7 +322,6 @@ class ConvenienceStoreController {
     this.#addBonusToReceipt(productName, maxPromotionQuantity);
   }
 
-  // 보너스 상품을 영수증에 추가
   #addBonusToReceipt(productName, quantity) {
     const bonusCount = this.#convenienceStore.getBonusProductCount(
       productName,

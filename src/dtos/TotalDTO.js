@@ -1,4 +1,4 @@
-class TotalInfoDTO {
+class TotalDTO {
   constructor(totalQuantity, totalAmount, promotionDiscount, membershipDiscount, finalAmount) {
     this.totalQuantity = totalQuantity;
     this.totalAmount = totalAmount;
@@ -28,4 +28,4 @@ class TotalInfoDTO {
   }
 }
 
-export default TotalInfoDTO;
+export default TotalDTO;

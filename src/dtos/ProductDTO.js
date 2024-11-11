@@ -1,4 +1,4 @@
-class ProductInfoDTO {
+class ProductDTO {
   #productName;
   #price;
   #productQuantity;
@@ -14,7 +14,7 @@ class ProductInfoDTO {
   }
 
   static of(productInfo) {
-    return new ProductInfoDTO(
+    return new ProductDTO(
       productInfo.productName,
       productInfo.price,
       productInfo.productQuantity,
@@ -44,4 +44,4 @@ class ProductInfoDTO {
   }
 }
 
-export default ProductInfoDTO;
+export default ProductDTO;

@@ -1,4 +1,4 @@
-class ProductPromotionInfoDTO {
+class ProductPromotionDTO {
   #productName;
   #productQuantity;
 
@@ -8,7 +8,7 @@ class ProductPromotionInfoDTO {
   }
 
   static of(productName,productQuantity) {
-    return new ProductPromotionInfoDTO(productName,productQuantity);
+    return new ProductPromotionDTO(productName,productQuantity);
   }
 
   getProductName() {
@@ -20,4 +20,4 @@ class ProductPromotionInfoDTO {
   }
 }
 
-export default ProductPromotionInfoDTO;
+export default ProductPromotionDTO;
