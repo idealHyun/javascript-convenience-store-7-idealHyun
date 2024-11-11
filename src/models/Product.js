@@ -60,7 +60,7 @@ class Product {
 
   #checkPriceRange(value) {
     if (Number(value) < STORE_CONFIG.minimumPrice) {
-      throw new Error(ERROR_MESSAGE.validation.MINIMUM_PRICE);
+      throw new Error(ERROR_MESSAGE.validation.invalidPrice);
     }
   }
 }
