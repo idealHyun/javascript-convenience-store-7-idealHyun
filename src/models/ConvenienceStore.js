@@ -19,8 +19,12 @@ class ConvenienceStore {
 
   async loadInitData() {
     const parser = new Parser();
-    this.#promotionMap = parser.parsePromotionsData(await this.#loadPromotions());
-    const { productMap, productStockMap } = parser.parseProductData(await this.#loadProducts());
+    this.#promotionMap = parser.parsePromotionsData(
+      await this.#loadPromotions(),
+    );
+    const { productMap, productStockMap } = parser.parseProductData(
+      await this.#loadProducts(),
+    );
     this.#productMap = productMap;
     this.#productStockMap = productStockMap;
   }
@@ -50,36 +54,72 @@ class ConvenienceStore {
     const parser = new Parser();
     const parsedItems = parser.parseProductInfo(inputString);
 
-    return parsedItems.map(({ productName, quantityString }) => {
+    return parsedItems.map(({ productName, quantity }) => {
       this.#validateProductName(productName);
-      this.#validateQuantity(productName, quantityString);
-      return new ProductStock(productName, Number(quantityString));
+      this.#validateQuantity(productName, quantity);
+      return new ProductStock(productName, quantity);
     });
   }
 
   getPromotionProductQuantity(productName) {
-    if(this.#productStockMap.get(productName).promotion){
+    if (this.#productStockMap.get(productName).promotion) {
       return this.#productStockMap.get(productName).promotion.getQuantity();
     }
     return 0;
   }
 
-  isHavePromotion(productName){
+  isHavePromotion(productName) {
     return !!this.#productStockMap.get(productName).promotion;
   }
 
   isExceedPromotionStock(productStock) {
-    const promotion = this.#productStockMap.get(productStock.getProductName()).promotion;
-    return promotion ? productStock.getQuantity() >= promotion.getQuantity() : false;
+    const promotion = this.#productStockMap.get(
+      productStock.getProductName(),
+    ).promotion;
+    return promotion
+      ? productStock.getQuantity() >= promotion.getQuantity()
+      : false;
   }
 
   getMaxPromotionQuantity(productStockToSell) {
-    const promotion = this.#getPromotionForProductName(productStockToSell.getProductName());
-    if (promotion && promotion.isOngoingPromotion(DateTimes.now())) {
-      const promotionProductCount = this.#getQuantity(this.#productStockMap.get(productStockToSell.getProductName()).promotion);
-      return promotion.calculateMaxPromotionQuantity(productStockToSell.getQuantity(), promotionProductCount,promotion.calculatePromotionSetSize());
+    const promotion = this.#getPromotionForProductName(
+      productStockToSell.getProductName(),
+    );
+
+    if (this.#isPromotionOngoing(promotion)) {
+      const promotionProductCount = this.#getPromotionProductCount(
+        productStockToSell.getProductName(),
+      );
+      return this.#calculateMaxPromotionQuantity(
+        promotion,
+        productStockToSell.getQuantity(),
+        promotionProductCount,
+      );
     }
+
     return 0;
+  }
+
+  #isPromotionOngoing(promotion) {
+    return promotion && promotion.isOngoingPromotion(DateTimes.now());
+  }
+
+  #getPromotionProductCount(productName) {
+    return this.#getQuantity(this.#productStockMap.get(productName).promotion);
+  }
+
+  // 최대로 프로모션을 적용할 수 있는 수량을 계산
+  #calculateMaxPromotionQuantity(
+    promotion,
+    purchaseQuantity,
+    promotionProductCount,
+  ) {
+    const promotionSetSize = promotion.calculatePromotionSetSize();
+    return promotion.calculateMaxPromotionQuantity(
+      purchaseQuantity,
+      promotionProductCount,
+      promotionSetSize,
+    );
   }
 
   decrementPromotionProductQuantity(isExceed, productName, decrementQuantity) {
@@ -89,7 +129,7 @@ class ConvenienceStore {
     if (isExceed) {
       const quantity = this.#getQuantity(promotionStock);
       promotionStock.decrementQuantity(quantity);
-      if(noPromotionStock){
+      if (noPromotionStock) {
         noPromotionStock.decrementQuantity(decrementQuantity - quantity);
       }
     } else {
@@ -98,7 +138,9 @@ class ConvenienceStore {
   }
 
   decrementProductQuantity(productName, decrementQuantity) {
-    this.#productStockMap.get(productName).noPromotion.decrementQuantity(decrementQuantity);
+    this.#productStockMap
+      .get(productName)
+      .noPromotion.decrementQuantity(decrementQuantity);
   }
 
   addAppliedPromotionProductToReceipt(productName, quantity) {
@@ -138,26 +180,35 @@ class ConvenienceStore {
       this.#createBonusProductDTOs(),
       new TotalInfoDTO(
         this.#receipt.getTotalQuantity(),
-        ...Object.values(this.#calculateTotalAmounts(applyDiscount))
-      )
+        ...Object.values(this.#calculateTotalAmounts(applyDiscount)),
+      ),
     );
   }
 
   #calculateTotalAmounts(applyDiscount) {
     const totalPurchaseAmount = this.#receipt.getTotalPurchaseAmount();
     const promotionDiscount = this.#receipt.getTotalPromotionDiscount();
-    const membershipDiscount = applyDiscount ? this.#receipt.getMembershipDiscountAmount() : 0;
-    const finalAmount = totalPurchaseAmount - promotionDiscount - membershipDiscount;
+    const membershipDiscount = applyDiscount
+      ? this.#receipt.getMembershipDiscountAmount()
+      : 0;
+    const finalAmount =
+      totalPurchaseAmount - promotionDiscount - membershipDiscount;
 
-    return { totalPurchaseAmount, promotionDiscount, membershipDiscount, finalAmount };
+    return {
+      totalPurchaseAmount,
+      promotionDiscount,
+      membershipDiscount,
+      finalAmount,
+    };
   }
 
   #createPurchasedProductDTOs() {
     const purchasedProductList = this.#receipt.getTotalProductsQuantity();
     return Object.entries(purchasedProductList)
       .filter(([_, { quantity }]) => quantity > 0)
-      .map(([name, { quantity, price }]) =>
-        new PurchasedProductDTO(name, quantity, price * quantity)
+      .map(
+        ([name, { quantity, price }]) =>
+          new PurchasedProductDTO(name, quantity, price * quantity),
       );
   }
 
@@ -169,7 +220,9 @@ class ConvenienceStore {
   }
 
   #getPromotionForProductName(productName) {
-    const promotionName = this.#getPromotionName(this.#productStockMap.get(productName).promotion);
+    const promotionName = this.#getPromotionName(
+      this.#productStockMap.get(productName).promotion,
+    );
     return promotionName ? this.#promotionMap.get(promotionName) : null;
   }
 
@@ -179,8 +232,7 @@ class ConvenienceStore {
     }
   }
 
-  #validateQuantity(productName, quantityString) {
-    const quantity = Number(quantityString);
+  #validateQuantity(productName, quantity) {
     if (isNaN(quantity) || quantity < STORE_CONFIG.minimumProductQuantity) {
       throw new Error(ERROR_MESSAGE.validation.invalidQuantity);
     }
@@ -189,24 +241,35 @@ class ConvenienceStore {
     }
   }
 
-
   #getTotalQuantity(productName) {
     const { noPromotion, promotion } = this.#productStockMap.get(productName);
-    return (this.#getQuantity(noPromotion) || 0) + (this.#getQuantity(promotion, true) || 0);
+    return (
+      (this.#getQuantity(noPromotion) || 0) +
+      (this.#getQuantity(promotion, true) || 0)
+    );
   }
 
   #getQuantity(productStock, checkPromotionPeriod = false) {
     if (!productStock) return 0;
-    if (checkPromotionPeriod && !this.#isPromotionValid(productStock.getPromotionName())) return 0;
+    if (
+      checkPromotionPeriod &&
+      !this.#isPromotionValid(productStock.getPromotionName())
+    )
+      return 0;
     return productStock.getQuantity();
   }
 
   #getPromotionName(promotionProductStock) {
-    return promotionProductStock ? promotionProductStock.getPromotionName() : null;
+    return promotionProductStock
+      ? promotionProductStock.getPromotionName()
+      : null;
   }
 
   #isPromotionValid(promotionName) {
-    return promotionName && this.#promotionMap.get(promotionName).isOngoingPromotion(DateTimes.now());
+    return (
+      promotionName &&
+      this.#promotionMap.get(promotionName).isOngoingPromotion(DateTimes.now())
+    );
   }
 
   async #loadPromotions() {

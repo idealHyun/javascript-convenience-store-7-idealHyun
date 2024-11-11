@@ -63,12 +63,34 @@ class Parser {
   }
 
   parseProductInfo(inputString) {
-    return inputString.split(this.#COMMA).map((item) => {
-      const [productName, quantityString] = item
-        .replace(this.#REPLACE_REGEX, '')
-        .split(this.#BAR);
-      return { productName, quantityString };
-    });
+    const parsedItems = this.#parseItems(inputString);
+    return this.#aggregateQuantities(parsedItems);
+  }
+
+  #parseItems(inputString) {
+    return inputString.split(this.#COMMA).map((item) => this.#parseItem(item));
+  }
+
+  #parseItem(item) {
+    const [productName, quantityString] = item
+      .replace(this.#REPLACE_REGEX, '')
+      .split(this.#BAR);
+    return { productName, quantity: Number(quantityString) };
+  }
+
+  // 중복된 이름의 경우 수량 합산
+  #aggregateQuantities(parsedItems) {
+    return parsedItems.reduce((acc, { productName, quantity }) => {
+      const existingProduct = acc.find(
+        (product) => product.productName === productName,
+      );
+      if (existingProduct) {
+        existingProduct.quantity += quantity;
+      } else {
+        acc.push({ productName, quantity });
+      }
+      return acc;
+    }, []);
   }
 
   #processDataLine(line, headers, productMap, productStockMap) {
