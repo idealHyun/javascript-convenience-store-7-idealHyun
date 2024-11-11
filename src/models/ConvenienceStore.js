@@ -77,7 +77,7 @@ class ConvenienceStore {
     const promotion = this.#getPromotionForProductName(productStockToSell.getProductName());
     if (promotion && promotion.isOngoingPromotion(DateTimes.now())) {
       const promotionProductCount = this.#getQuantity(this.#productStockMap.get(productStockToSell.getProductName()).promotion);
-      return promotion.calculateMaxPromotionQuantity(productStockToSell.getQuantity(), promotionProductCount);
+      return promotion.calculateMaxPromotionQuantity(productStockToSell.getQuantity(), promotionProductCount,promotion.calculatePromotionSetSize());
     }
     return 0;
   }

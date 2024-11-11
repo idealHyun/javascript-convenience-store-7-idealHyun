@@ -88,7 +88,7 @@ describe('Promotion 테스트', () => {
         },
         promotionProductCount: 10,
         purchaseQuantity: 12,
-        expectValue: 9
+        expectValue: 9,
       },
       {
         description: 'buy가 2, get이 1일 때 1개 구매(추가 증정 없음)',
@@ -101,7 +101,7 @@ describe('Promotion 테스트', () => {
         },
         promotionProductCount: 10,
         purchaseQuantity: 1,
-        expectValue: 0
+        expectValue: 0,
       },
       {
         description: 'buy가 2, get이 1일 때 2개 구매(혜택 1개)',
@@ -114,7 +114,7 @@ describe('Promotion 테스트', () => {
         },
         promotionProductCount: 10,
         purchaseQuantity: 2,
-        expectValue: 3
+        expectValue: 3,
       },
       {
         description: 'buy가 2, get이 1일 때 5개 구매(혜택 1개)',
@@ -127,7 +127,7 @@ describe('Promotion 테스트', () => {
         },
         promotionProductCount: 10,
         purchaseQuantity: 5,
-        expectValue: 6
+        expectValue: 6,
       },
       {
         description: 'buy가 2, get이 1일 때 9개 구매',
@@ -140,7 +140,7 @@ describe('Promotion 테스트', () => {
         },
         promotionProductCount: 10,
         purchaseQuantity: 9,
-        expectValue: 9
+        expectValue: 9,
       },
       {
         description: 'buy가 2, get이 1일 때 9개 구매',
@@ -153,7 +153,7 @@ describe('Promotion 테스트', () => {
         },
         promotionProductCount: 7,
         purchaseQuantity: 9,
-        expectValue: 6
+        expectValue: 6,
       },
       {
         description: 'buy가 2, get이 1일 때 2개 구매',
@@ -166,14 +166,27 @@ describe('Promotion 테스트', () => {
         },
         promotionProductCount: 2,
         purchaseQuantity: 2,
-        expectValue: 0
+        expectValue: 0,
       },
-    ])('$description', ({ promotionInfo, promotionProductCount, purchaseQuantity, expectValue }) => {
-      const { name, buy, get, startDate, endDate } = promotionInfo;
-      const promotion = new Promotion(name, buy, get, startDate, endDate);
+    ])(
+      '$description',
+      ({
+        promotionInfo,
+        promotionProductCount,
+        purchaseQuantity,
+        expectValue,
+      }) => {
+        const { name, buy, get, startDate, endDate } = promotionInfo;
+        const promotion = new Promotion(name, buy, get, startDate, endDate);
 
-      expect(promotion.calculateMaxPromotionQuantity(purchaseQuantity, promotionProductCount)).toBe(expectValue);
-    });
+        expect(
+          promotion.calculateMaxPromotionQuantity(
+            purchaseQuantity,
+            promotionProductCount,
+            promotion.calculatePromotionSetSize(),
+          ),
+        ).toBe(expectValue);
+      },
+    );
   });
-
 });

@@ -17,24 +17,25 @@ class Promotion {
     this.#endDate = endDate;
   }
 
-  isOngoingPromotion(dayTime){
-    return dayTime >= new Date(this.#startDate) && dayTime <= new Date(this.#endDate);
+  isOngoingPromotion(dayTime) {
+    return (
+      dayTime >= new Date(this.#startDate) && dayTime <= new Date(this.#endDate)
+    );
   }
 
-  calculateMaxPromotionQuantity(purchaseQuantity, promotionProductCount) {
-    const promotionSetProductCount = this.#buy + this.#get;
+  calculateMaxPromotionQuantity(
+    purchaseQuantity,
+    promotionProductCount,
+    promotionSetProductCount,
+  ) {
     let totalPromotionQuantity = 0;
-    let remainingPurchaseQuantity = purchaseQuantity;
 
-    while (remainingPurchaseQuantity >= this.#buy &&
-    totalPromotionQuantity + promotionSetProductCount <= promotionProductCount) {
-
+    while (
+      purchaseQuantity >= this.#buy &&
+      totalPromotionQuantity + promotionSetProductCount <= promotionProductCount
+    ) {
       totalPromotionQuantity += promotionSetProductCount;
-      remainingPurchaseQuantity -= this.#buy;
-
-      if (remainingPurchaseQuantity < this.#buy) {
-        break;
-      }
+      purchaseQuantity -= promotionSetProductCount;
     }
 
     return totalPromotionQuantity;
@@ -45,7 +46,7 @@ class Promotion {
     return PurchaseQuantity / (this.#buy + this.#get);
   }
 
-  calculatePromotionSetSize(){
+  calculatePromotionSetSize() {
     return this.#buy + this.#get;
   }
 
